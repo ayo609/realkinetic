@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kinectwealth • Smart Wealth Building</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(150deg, #f0f4ff 0%, #e8f0fe 30%, #f5f7ff 60%, #eff6ff 100%);
+      color: #1e293b;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Decorative Background Shapes */
+    .bg-decoration {
+      position: fixed;
+      border-radius: 50%;
+      z-index: 0;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+    .bg-decoration-1 {
+      width: 600px; height: 600px;
+      top: -200px; right: -150px;
+      background: #2563eb;
+      animation: floatA 22s infinite alternate;
+    }
+    .bg-decoration-2 {
+      width: 500px; height: 500px;
+      bottom: -150px; left: -100px;
+      background: #3b82f6;
+      animation: floatB 20s infinite alternate-reverse;
+    }
+    .bg-decoration-3 {
+      width: 350px; height: 350px;
+      top: 40%; left: 55%;
+      background: #60a5fa;
+      animation: pulse 10s infinite;
+    }
+    @keyframes floatA {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(70px, 40px) scale(1.1); }
+    }
+    @keyframes floatB {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-60px, -40px) scale(1.12); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.05; }
+      50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.1; }
+    }
+
+    /* Main Container */
+    .app-wrapper {
+      position: relative;
+      z-index: 10;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 100px;
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.06);
+    }
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .brand-logo {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1e293b;
+      letter-spacing: -0.02em;
+    }
+    .brand-name span {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .date-display {
+      background: #f1f5f9;
+      border-radius: 50px;
+      padding: 0.55rem 1.3rem;
+      font-size: 0.85rem;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+    .date-display i {
+      color: #2563eb;
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 40%, #2563eb 70%, #3b82f6 100%);
+      border-radius: 28px;
+      padding: 3rem 2.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      color: #ffffff;
+    }
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 280px;
+      height: 280px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 50%;
+    }
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      left: -40px;
+      width: 180px;
+      height: 180px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 50%;
+    }
+    .welcome-content {
+      position: relative;
+      z-index: 1;
+    }
+    .greeting-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 0.4rem 1.2rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.2rem;
+      color: #ffffff;
+    }
+    .welcome-banner h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.02em;
+    }
+    .welcome-banner h1 .highlight {
+      color: #93c5fd;
+    }
+    .welcome-banner .tagline {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1rem;
+      max-width: 500px;
+      line-height: 1.6;
+    }
+    .bonus-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 50px;
+      padding: 0.5rem 1.3rem;
+      margin-top: 1.2rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .bonus-highlight i {
+      color: #fbbf24;
+    }
+
+    /* Stats Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.3rem;
+      margin-bottom: 2.5rem;
+    }
+    .stat-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    }
+    .stat-box:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.1);
+      border-color: #bfdbfe;
+    }
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+    }
+    .stat-icon {
+      width: 42px; height: 42px;
+      background: #eff6ff;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #2563eb;
+    }
+    .stat-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.03em;
+    }
+    .stat-meta {
+      font-size: 0.78rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .stat-meta .positive {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    /* Action Buttons Row */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.3rem;
+      margin-bottom: 2.5rem;
+    }
+    .action-btn {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 1.5rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .action-btn:hover {
+      border-color: #2563eb;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+      transform: translateY(-3px);
+    }
+    .action-icon {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .action-icon.deposit {
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      color: #ffffff;
+    }
+    .action-icon.withdraw {
+      background: linear-gradient(135deg, #065f46, #059669);
+      color: #ffffff;
+    }
+    .action-info h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.2rem;
+    }
+    .action-info p {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+
+    /* Section Headers */
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2rem 0 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .section-heading h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    .section-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: gap 0.3s;
+    }
+    .section-link:hover {
+      gap: 0.7rem;
+    }
+
+    /* Feature Cards */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.3rem;
+      margin-bottom: 2rem;
+    }
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1.8rem;
+      transition: all 0.3s;
+    }
+    .feature-card:hover {
+      border-color: #bfdbfe;
+      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.08);
+      transform: translateY(-5px);
+    }
+    .feature-icon-circle {
+      width: 56px; height: 56px;
+      background: #eff6ff;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #2563eb;
+      margin-bottom: 1.3rem;
+    }
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #0f172a;
+    }
+    .feature-card p {
+      color: #64748b;
+      line-height: 1.6;
+      font-size: 0.88rem;
+    }
+
+    /* Testimonials Auto-Scroll */
+    .testimonials-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      margin-bottom: 2rem;
+    }
+    .testimonials-track {
+      display: flex;
+      animation: autoScroll 30s linear infinite;
+    }
+    .testimonials-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes autoScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .testimonial-item {
+      flex: 0 0 350px;
+      padding: 0 0.8rem;
+    }
+    .testimonial-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 1.5rem;
+      height: 100%;
+      transition: all 0.3s;
+    }
+    .testimonial-card:hover {
+      border-color: #bfdbfe;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+      transform: translateY(-4px);
+    }
+    .testimonial-stars {
+      color: #f59e0b;
+      margin-bottom: 0.8rem;
+      font-size: 0.85rem;
+    }
+    .testimonial-text {
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 1.2rem;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+    .testimonial-user {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .user-avatar {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .user-info h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .user-info p {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    /* Bottom Navigation */
+    .mobile-nav {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 60px;
+      padding: 0.5rem 0.8rem;
+      display: flex;
+      gap: 0.3rem;
+      z-index: 200;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+    .nav-item {
+      padding: 0.6rem 1.2rem;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.83rem;
+      transition: all 0.25s;
+    }
+    .nav-item i {
+      font-size: 1rem;
+    }
+    .nav-item.active, .nav-item:hover {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Custom Modal Overlay */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .custom-modal-overlay.show {
+      display: flex;
+    }
+    .custom-modal {
+      background: #ffffff;
+      border-radius: 24px;
+      max-width: 440px;
+      width: 100%;
+      padding: 0;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      animation: modalPop 0.35s ease-out;
+      position: relative;
+    }
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-close-x {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 36px; height: 36px;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+    .modal-close-x:hover {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+    .modal-header-section {
+      background: linear-gradient(135deg, #1e40af, #2563eb, #3b82f6);
+      border-radius: 24px 24px 0 0;
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+      color: #ffffff;
+    }
+    .modal-emoji {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    .modal-header-section h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .modal-header-section .sub-text {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+    .modal-header-section .bonus-tag {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 0.4rem 1.2rem;
+      margin-top: 0.8rem;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .modal-body-section {
+      padding: 1.5rem 2rem 2rem;
+    }
+    .modal-info-block {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+    .modal-info-block p {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.45rem 0;
+      font-size: 0.85rem;
+      color: #334155;
+    }
+    .modal-info-block p i {
+      color: #2563eb;
+      width: 20px;
+      text-align: center;
+    }
+    .modal-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .modal-link {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.85rem 1.2rem;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      color: #ffffff;
+    }
+    .modal-link i {
+      font-size: 1.1rem;
+    }
+    .modal-link.telegram-channel {
+      background: #26A5E4;
+    }
+    .modal-link.telegram-group {
+      background: #2AABEE;
+    }
+    .modal-link.customer-service {
+      background: #1e40af;
+    }
+    .modal-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      filter: brightness(1.05);
+    }
+    .modal-continue-btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      border: none;
+      border-radius: 14px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.3s;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+    }
+    .modal-continue-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.4);
+    }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .app-wrapper { padding: 1rem 1.2rem 90px; }
+      .stats-row { grid-template-columns: 1fr; }
+      .action-buttons { grid-template-columns: 1fr; }
+      .top-nav { flex-direction: column; gap: 0.8rem; }
+      .welcome-banner { padding: 2rem 1.5rem; }
+      .testimonial-item { flex: 0 0 280px; }
+      .mobile-nav .nav-item span { display: none; }
+      .mobile-nav .nav-item { padding: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background Decorations -->
+<div class="bg-decoration bg-decoration-1"></div>
+<div class="bg-decoration bg-decoration-2"></div>
+<div class="bg-decoration bg-decoration-3"></div>
+
+<!-- Main App -->
+<div class="app-wrapper">
+  
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="brand-section">
+      <div class="brand-logo">⚡</div>
+      <div class="brand-name">Kinect<span>wealth</span></div>
+    </div>
+    <div class="date-display">
+      <i class="far fa-calendar-alt"></i>
+      <span id="currentDate"></span>
+    </div>
+  </nav>
+
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="welcome-content">
+      <div class="greeting-badge">
+        <i class="fas fa-hand-peace"></i> WELCOME
+      </div>
+      <h1>Hello, <span class="highlight" id="userDisplayName">Investor</span> 👋</h1>
+      <p class="tagline">Your journey to financial freedom starts here. Track your earnings, invest smartly, and grow your wealth daily.</p>
+      <div class="bonus-highlight">
+        <i class="fas fa-gift"></i>
+        <span>₦1,000 Welcome Bonus Credited!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-top">
+        <span class="stat-label">Wallet Balance</span>
+        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+      </div>
+      <div class="stat-amount" id="walletBalance">₦0</div>
+      <div class="stat-meta"><span class="positive">Available</span> for withdrawal</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-top">
+        <span class="stat-label">Total Earnings</span>
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+      </div>
+      <div class="stat-amount" id="totalEarnings">₦0</div>
+      <div class="stat-meta">Lifetime returns</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-top">
+        <span class="stat-label">Active Investments</span>
+        <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
+      </div>
+      <div class="stat-amount" id="activePlans">0</div>
+      <div class="stat-meta">Running plans</div>
+    </div>
+  </div>
+
+  <!-- Deposit & Withdraw Buttons -->
+  <div class="action-buttons">
+    <a href="deposit.html" class="action-btn">
+      <div class="action-icon deposit">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="action-info">
+        <h3>Deposit Funds</h3>
+        <p>Add money to your wallet</p>
+      </div>
+    </a>
+    <a href="withdraw.html" class="action-btn">
+      <div class="action-icon withdraw">
+        <i class="fas fa-arrow-down"></i>
+      </div>
+      <div class="action-info">
+        <h3>Withdraw Earnings</h3>
+        <p>Cash out to your bank</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Features -->
+  <div class="section-heading">
+    <h2>Why Kinectwealth</h2>
+    <a href="plans.html" class="section-link">View All Plans <i class="fas fa-arrow-right"></i></a>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon-circle"><i class="fas fa-bolt"></i></div>
+      <h3>Daily Returns</h3>
+      <p>Earn consistent daily profits automatically credited to your wallet. No manual claiming needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-circle"><i class="fas fa-rocket"></i></div>
+      <h3>Fast Withdrawals</h3>
+      <p>Withdraw your earnings directly to your bank account within minutes. Fast and reliable.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-circle"><i class="fas fa-shield-halved"></i></div>
+      <h3>Bank-Level Security</h3>
+      <p>Your funds and data are protected with enterprise-grade encryption and secure protocols.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon-circle"><i class="fas fa-users"></i></div>
+      <h3>Referral Rewards</h3>
+      <p>Earn commissions from 3 levels of your referral network. Build passive income streams.</p>
+    </div>
+  </div>
+
+  <!-- Auto-Scrolling Testimonials -->
+  <div class="section-heading">
+    <h2>What Our Investors Say</h2>
+  </div>
+  <div class="testimonials-wrapper">
+    <div class="testimonials-track" id="testimonialsTrack">
+      <!-- Testimonials duplicated for seamless loop -->
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Kinectwealth has transformed my savings. The daily returns are consistent, and withdrawals hit my account within minutes. Truly impressed!"</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">SO</div>
+            <div class="user-info"><h4>Samuel O.</h4><p>Lagos, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"I've earned over ₦850,000 in 8 months. The referral system is amazing — my downlines earn me passive income daily!"</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">DK</div>
+            <div class="user-info"><h4>Deborah K.</h4><p>Abuja, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Customer support is top-notch! Any issue is resolved within hours. The platform is transparent and reliable."</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">MT</div>
+            <div class="user-info"><h4>Michael T.</h4><p>Ibadan, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Started with ₦50,000, now my portfolio exceeds ₦600,000. Kinectwealth delivers exactly what they promise."</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">CE</div>
+            <div class="user-info"><h4>Chioma E.</h4><p>Port Harcourt, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Best investment decision I made this year. Daily payouts, no hidden charges, and the platform is very easy to use."</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">EN</div>
+            <div class="user-info"><h4>Emeka N.</h4><p>Enugu, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <!-- Duplicate for seamless loop -->
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Kinectwealth has transformed my savings. The daily returns are consistent, and withdrawals hit my account within minutes. Truly impressed!"</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">SO</div>
+            <div class="user-info"><h4>Samuel O.</h4><p>Lagos, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"I've earned over ₦850,000 in 8 months. The referral system is amazing — my downlines earn me passive income daily!"</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">DK</div>
+            <div class="user-info"><h4>Deborah K.</h4><p>Abuja, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Customer support is top-notch! Any issue is resolved within hours. The platform is transparent and reliable."</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">MT</div>
+            <div class="user-info"><h4>Michael T.</h4><p>Ibadan, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Started with ₦50,000, now my portfolio exceeds ₦600,000. Kinectwealth delivers exactly what they promise."</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">CE</div>
+            <div class="user-info"><h4>Chioma E.</h4><p>Port Harcourt, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">"Best investment decision I made this year. Daily payouts, no hidden charges, and the platform is very easy to use."</p>
+          <div class="testimonial-user">
+            <div class="user-avatar">EN</div>
+            <div class="user-info"><h4>Emeka N.</h4><p>Enugu, Nigeria</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="mobile-nav">
+    <a href="home.html" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="deposit.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>Deposit</span></a>
+    <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+    <a href="referral.html" class="nav-item"><i class="fas fa-users"></i><span>Referral</span></a>
+    <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+  </div>
+</div>
+
+<!-- Custom Welcome Modal -->
+<div class="custom-modal-overlay" id="welcomeModal">
+  <div class="custom-modal">
+    <button class="modal-close-x" id="closeModalX">✕</button>
+    <div class="modal-header-section">
+      <div class="modal-emoji">🎉</div>
+      <h3>Welcome to Kinectwealth!</h3>
+      <p class="sub-text">Your wealth journey begins now</p>
+      <div class="bonus-tag">💰 ₦1,000 Welcome Bonus Added!</div>
+    </div>
+    <div class="modal-body-section">
+      <div class="modal-info-block">
+        <p><i class="fas fa-check-circle"></i> <strong>Welcome bonus:</strong> ₦1,000 credited instantly</p>
+        <p><i class="fas fa-check-circle"></i> <strong>Daily returns:</strong> Earn up to 3.5% daily</p>
+        <p><i class="fas fa-check-circle"></i> <strong>Withdrawals:</strong> Fast bank transfers</p>
+        <p><i class="fas fa-check-circle"></i> <strong>Referral bonus:</strong> Earn from 3 levels</p>
+      </div>
+      <p style="font-weight:700; font-size:0.85rem; color:#334155; margin-bottom:0.6rem;">📢 Join Our Communities</p>
+      <div class="modal-links">
+        <a href="https://t.me/KINECTIC_WEALTH" target="_blank" class="modal-link telegram-channel">
+          <i class="fab fa-telegram-plane"></i> Telegram Channel
+        </a>
+        <a href="https://t.me/+zRUEJ3uds9E3Mzg0" target="_blank" class="modal-link telegram-group">
+          <i class="fab fa-telegram-plane"></i> Telegram Group Chat
+        </a>
+        <a href="https://t.me/VictorSterling89" target="_blank" class="modal-link customer-service">
+          <i class="fas fa-headset"></i> Customer Service
+        </a>
+      </div>
+      <button class="modal-continue-btn" id="closeModalBtn">
+        Continue to Dashboard <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+    authDomain: "realkinetic-72248.firebaseapp.com",
+    projectId: "realkinetic-72248",
+    storageBucket: "realkinetic-72248.firebasestorage.app",
+    messagingSenderId: "307505218118",
+    appId: "1:307505218118:web:010dc757c598f4b87d0047"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Current date
+  const dateOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', dateOpts);
+
+  // Format currency
+  function formatNaira(amount) {
+    return '₦' + (amount || 0).toLocaleString();
+  }
+
+  // Modal functionality
+  const modal = document.getElementById('welcomeModal');
+  const closeModalX = document.getElementById('closeModalX');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+
+  function openModal() {
+    modal.classList.add('show');
+  }
+  function closeModal() {
+    modal.classList.remove('show');
+  }
+
+  closeModalX.addEventListener('click', closeModal);
+  closeModalBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Auth state
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      
+      if (snap.exists()) {
+        const data = snap.data();
+        const firstName = (data.fullName || "Investor").split(' ')[0];
+        
+        document.getElementById('userDisplayName').textContent = firstName;
+        document.getElementById('walletBalance').textContent = formatNaira(data.wallet || 0);
+        document.getElementById('totalEarnings').textContent = formatNaira(data.totalEarnings || 0);
+        document.getElementById('activePlans').textContent = data.activeInvestments || 0;
+        
+        // Update last login
+        await updateDoc(userRef, { 
+          lastLogin: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }).catch(() => {});
+        
+        // Show welcome modal (once per session)
+        const modalKey = `kinectwealth_modal_${user.uid}`;
+        if (!sessionStorage.getItem(modalKey)) {
+          setTimeout(() => {
+            openModal();
+          }, 1000);
+          sessionStorage.setItem(modalKey, 'shown');
+        }
+      }
+    } catch (err) {
+      console.error("Error loading user data:", err);
+    }
+  });
+</script>
+</body>
+</html>
