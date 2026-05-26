@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdraw Funds | Kinectwealth</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #3b82f6;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(160deg, #f0f4ff 0%, #e8f0fe 30%, #f5f7ff 60%, #eff6ff 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      position: relative;
+    }
+
+    /* Background decorations */
+    .bg-circle {
+      position: fixed;
+      border-radius: 50%;
+      z-index: 0;
+      opacity: 0.04;
+      pointer-events: none;
+    }
+    .bg-circle-1 { width: 450px; height: 450px; top: -100px; right: -80px; background: #2563eb; animation: drift 20s infinite alternate; }
+    .bg-circle-2 { width: 350px; height: 350px; bottom: -80px; left: -60px; background: #3b82f6; animation: drift 18s infinite alternate-reverse; }
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(50px, 30px) scale(1.1); }
+    }
+
+    /* Main Card */
+    .withdraw-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      border-radius: 28px;
+      box-shadow: 0 20px 50px rgba(37, 99, 235, 0.08), 0 4px 16px rgba(0, 0, 0, 0.03);
+      overflow: hidden;
+      animation: cardPop 0.55s ease-out;
+    }
+    @keyframes cardPop {
+      from { opacity: 0; transform: translateY(25px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Top Header Strip */
+    .card-top-strip {
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 40%, #3b82f6 100%);
+      padding: 2.2rem 2rem 1.8rem;
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-top-strip::after {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .strip-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    .back-circle {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .back-circle:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateX(-3px);
+    }
+    .strip-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .balance-display {
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 1rem 1.3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(6px);
+    }
+    .balance-label-sm {
+      font-size: 0.78rem;
+      opacity: 0.85;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .balance-value-lg {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    /* Card Body */
+    .card-body {
+      padding: 1.8rem 2rem 2.2rem;
+    }
+
+    /* Status Banners */
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem 1.2rem;
+      border-radius: 14px;
+      margin-bottom: 1.3rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .status-banner.open {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+    .status-banner.open i { color: #16a34a; }
+    .status-banner.closed {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+    .status-banner.closed i { color: #ef4444; }
+    .live-time {
+      margin-left: auto;
+      font-family: 'Outfit', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      background: #ffffff;
+      padding: 0.3rem 0.8rem;
+      border-radius: 8px;
+      color: #0f172a;
+      flex-shrink: 0;
+    }
+
+    /* Daily Limit Indicator */
+    .daily-limit-indicator {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem 1.3rem;
+      margin-bottom: 1.5rem;
+    }
+    .limit-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      font-size: 0.83rem;
+    }
+    .limit-info-row .count {
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .limit-dots {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .limit-dot {
+      width: 100%;
+      height: 8px;
+      border-radius: 10px;
+      background: var(--border-light);
+      transition: all 0.3s;
+    }
+    .limit-dot.filled {
+      background: var(--primary);
+    }
+    .limit-dot.remaining {
+      background: #dbeafe;
+      border: 1px solid #bfdbfe;
+    }
+    .limit-note {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+      text-align: right;
+    }
+
+    /* Form */
+    .form-field {
+      margin-bottom: 1.2rem;
+    }
+    .form-field label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 0.4rem;
+    }
+    .form-field label i {
+      color: var(--primary);
+      margin-right: 0.3rem;
+      width: 16px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap .field-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+      font-size: 0.9rem;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    .input-wrap input {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.6rem;
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      font-size: 0.93rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s;
+      outline: none;
+    }
+    .input-wrap input:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+    }
+    .input-wrap input:focus ~ .field-icon {
+      opacity: 1;
+    }
+    .input-wrap input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Fee Calculator Box */
+    .fee-calculator {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin: 1.3rem 0;
+      display: none;
+    }
+    .fee-calculator.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      font-size: 0.88rem;
+      color: #475569;
+    }
+    .fee-row.divider {
+      border-top: 1px dashed #fde68a;
+      margin-top: 0.4rem;
+      padding-top: 0.8rem;
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 0.95rem;
+    }
+    .fee-row.divider span:last-child {
+      color: #16a34a;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+    }
+    .fee-note {
+      font-size: 0.73rem;
+      color: #92400e;
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      padding: 0.95rem;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      border: none;
+      border-radius: 14px;
+      color: #ffffff;
+      font-size: 0.97rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+      letter-spacing: 0.01em;
+      font-family: 'Inter', sans-serif;
+      margin-top: 1.5rem;
+    }
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.4);
+      background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+    }
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Locked/Error States */
+    .locked-panel {
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+    .locked-icon {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.2rem;
+    }
+    .locked-icon.red {
+      background: #fef2f2;
+      color: #ef4444;
+      border: 3px solid #fecaca;
+    }
+    .locked-icon.amber {
+      background: #fffbeb;
+      color: #f59e0b;
+      border: 3px solid #fde68a;
+    }
+    .locked-panel h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      color: #0f172a;
+      margin-bottom: 0.6rem;
+    }
+    .locked-panel p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .action-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      background: var(--primary);
+      color: #ffffff;
+      padding: 0.8rem 2rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+    .action-link:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Loading */
+    .loading-state {
+      text-align: center;
+      padding: 3rem;
+    }
+    .loader-ring {
+      width: 44px; height: 44px;
+      border: 3px solid #e2e8f0;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.2rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .withdraw-card { border-radius: 22px; }
+      .card-top-strip { padding: 1.8rem 1.5rem 1.5rem; }
+      .card-body { padding: 1.5rem; }
+      .balance-value-lg { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-circle bg-circle-1"></div>
+<div class="bg-circle bg-circle-2"></div>
+
+<div class="withdraw-card" id="mainContent">
+  <div class="loading-state">
+    <div class="loader-ring"></div>
+    <p style="color: #64748b;">Loading withdrawal page...</p>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, getDocs, query, where,
+    runTransaction, serverTimestamp, Timestamp
+  } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+    authDomain: "realkinetic-72248.firebaseapp.com",
+    projectId: "realkinetic-72248",
+    storageBucket: "realkinetic-72248.firebasestorage.app",
+    messagingSenderId: "307505218118",
+    appId: "1:307505218118:web:010dc757c598f4b87d0047"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ── CONSTANTS ──────────────────────────────────────────
+  const MIN_WITHDRAWAL = 1500;
+  const FEE_PERCENT = 15;
+  const MAX_DAILY = 1; // Once per day
+  const WITHDRAWAL_START_HOUR = 10;
+  const WITHDRAWAL_END_HOUR = 17;
+
+  const formatNaira = (n) => "₦" + Number(n || 0).toLocaleString();
+
+  // ── HELPERS ────────────────────────────────────────────
+  function isSunday() {
+    return new Date().getDay() === 0;
+  }
+
+  function isWithinWindow() {
+    if (isSunday()) return false;
+    const h = new Date().getHours();
+    return h >= WITHDRAWAL_START_HOUR && h < WITHDRAWAL_END_HOUR;
+  }
+
+  function getTimeUntilOpen() {
+    const now = new Date();
+    let open = new Date(now);
+    open.setHours(WITHDRAWAL_START_HOUR, 0, 0, 0);
+    if (now >= open || isSunday()) {
+      open.setDate(open.getDate() + 1);
+      if (open.getDay() === 0) open.setDate(open.getDate() + 1);
+    }
+    const diff = open - now;
+    const hh = Math.floor(diff / 3600000);
+    const mm = Math.floor((diff % 3600000) / 60000);
+    const ss = Math.floor((diff % 60000) / 1000);
+    return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  }
+
+  function startLiveClock(elementId) {
+    function tick() {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const now = new Date();
+      el.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    }
+    tick();
+    return setInterval(tick, 1000);
+  }
+
+  async function countTodayWithdrawals(userId) {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    const q = query(
+      collection(db, `users/${userId}/withdrawals`),
+      where('createdAt', '>=', Timestamp.fromDate(start)),
+      where('createdAt', '<=', Timestamp.fromDate(end))
+    );
+    const snap = await getDocs(q);
+    return snap.size;
+  }
+
+  async function hasActivePlan(userId) {
+    const plansSnap = await getDocs(collection(db, `users/${userId}/activePlans`));
+    let active = false;
+    plansSnap.forEach(doc => {
+      const data = doc.data();
+      if (data.status === 'active' && data.daysLeft > 0) active = true;
+    });
+    return active;
+  }
+
+  // ── MAIN AUTH FLOW ─────────────────────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+
+    const container = document.getElementById("mainContent");
+
+    try {
+      // Admin kill-switch
+      let withdrawalEnabled = true;
+      try {
+        const settingsDoc = await getDoc(doc(db, 'settings', 'withdrawalSystem'));
+        if (settingsDoc.exists()) withdrawalEnabled = settingsDoc.data().enabled !== false;
+      } catch (_) {}
+
+      if (!withdrawalEnabled) {
+        container.innerHTML = renderLockedPanel('red', 'fa-ban', 'Withdrawals Disabled', 'Withdrawals have been temporarily disabled by the administrator.', 'dashboard.html', 'Back to Dashboard');
+        return;
+      }
+
+      // Sunday check
+      if (isSunday()) {
+        container.innerHTML = renderLockedPanel('red', 'fa-calendar-xmark', 'No Withdrawals on Sunday', 'Withdrawals are processed <strong>Monday to Saturday</strong> only.<br>Please return tomorrow.', 'dashboard.html', 'Back to Dashboard');
+        return;
+      }
+
+      // Time window check
+      if (!isWithinWindow()) {
+        container.innerHTML = `
+          <div class="card-top-strip">
+            <div class="strip-header">
+              <a href="dashboard.html" class="back-circle"><i class="fas fa-arrow-left"></i></a>
+              <h1>Withdrawal Closed</h1>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="locked-panel">
+              <div class="locked-icon red"><i class="fas fa-clock"></i></div>
+              <h2>Outside Withdrawal Hours</h2>
+              <p>Withdrawals are only processed <strong>${WITHDRAWAL_START_HOUR}:00 AM – ${WITHDRAWAL_END_HOUR}:00 PM</strong><br>Monday to Saturday (except Sunday).</p>
+              <div style="background:#f8fafc;border-radius:14px;padding:1rem;margin:1.2rem 0;">
+                <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.3rem;">Window opens in</div>
+                <div id="countdownDisplay" style="font-family:'Outfit',monospace;font-size:2rem;font-weight:700;color:#2563eb;">--:--:--</div>
+              </div>
+              <a href="dashboard.html" class="action-link">Back to Dashboard</a>
+            </div>
+          </div>
+        `;
+        const interval = setInterval(() => {
+          const el = document.getElementById('countdownDisplay');
+          if (el) el.textContent = getTimeUntilOpen();
+          else clearInterval(interval);
+        }, 1000);
+        return;
+      }
+
+      // Fetch user data
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) throw new Error("User profile not found");
+      const userData = userSnap.data();
+      const balance = Number(userData.wallet || 0);
+
+      // Active plan check
+      const hasPlan = await hasActivePlan(user.uid);
+      if (!hasPlan) {
+        container.innerHTML = renderLockedPanel('amber', 'fa-lock', 'Active Investment Required', 'You must have an <strong>active investment plan</strong> to withdraw funds.<br>Purchase a plan to unlock withdrawals.', 'plans.html', 'View Investment Plans');
+        return;
+      }
+
+      // Daily limit check
+      const todayCount = await countTodayWithdrawals(user.uid);
+      if (todayCount >= MAX_DAILY) {
+        container.innerHTML = renderLockedPanel('red', 'fa-circle-exclamation', 'Daily Limit Reached', `You have reached the maximum of <strong>${MAX_DAILY} withdrawal per day</strong>.<br>Your limit resets at midnight.`, 'dashboard.html', 'Back to Dashboard');
+        return;
+      }
+
+      // Minimum balance check
+      if (balance < MIN_WITHDRAWAL) {
+        container.innerHTML = renderLockedPanel('amber', 'fa-wallet', 'Insufficient Balance', `Minimum withdrawal is <strong>${formatNaira(MIN_WITHDRAWAL)}</strong>.<br>Your current balance is <strong>${formatNaira(balance)}</strong>.`, 'dashboard.html', 'Back to Dashboard');
+        return;
+      }
+
+      // ── RENDER WITHDRAWAL FORM ──────────────────────────
+      container.innerHTML = `
+        <div class="card-top-strip">
+          <div class="strip-header">
+            <a href="dashboard.html" class="back-circle"><i class="fas fa-arrow-left"></i></a>
+            <h1>Withdraw Funds</h1>
+          </div>
+          <div class="balance-display">
+            <div>
+              <div class="balance-label-sm">Available Balance</div>
+              <div class="balance-value-lg">${formatNaira(balance)}</div>
+            </div>
+            <i class="fas fa-wallet" style="font-size:1.8rem;opacity:0.7;"></i>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="status-banner open">
+            <i class="fas fa-circle-check"></i>
+            <span>Withdrawal Window Open (${WITHDRAWAL_START_HOUR}AM–${WITHDRAWAL_END_HOUR}PM, Mon–Sat)</span>
+            <div class="live-time" id="liveClock">--:--:--</div>
+          </div>
+
+          <div class="daily-limit-indicator">
+            <div class="limit-info-row">
+              <span><i class="fas fa-rotate" style="color:#2563eb;margin-right:0.4rem;"></i>Today's Withdrawals</span>
+              <span class="count">${todayCount} / ${MAX_DAILY}</span>
+            </div>
+            <div class="limit-dots">
+              <div class="limit-dot ${todayCount >= 1 ? 'filled' : 'remaining'}"></div>
+            </div>
+            <div class="limit-note">1 withdrawal allowed per day • Resets at midnight</div>
+          </div>
+
+          <form id="withdrawForm">
+            <div class="form-field">
+              <label><i class="fas fa-coins"></i> Withdrawal Amount</label>
+              <div class="input-wrap">
+                <i class="fas fa-naira-sign field-icon"></i>
+                <input type="number" id="amount" min="${MIN_WITHDRAWAL}" max="${balance}" placeholder="Minimum: ${formatNaira(MIN_WITHDRAWAL)}" required>
+              </div>
+            </div>
+
+            <div class="fee-calculator" id="feeCalculator">
+              <div class="fee-row">
+                <span>Withdrawal Amount</span>
+                <span id="calcAmount">₦0</span>
+              </div>
+              <div class="fee-row">
+                <span>Processing Fee (${FEE_PERCENT}%)</span>
+                <span id="calcFee" style="color:#ef4444;">₦0</span>
+              </div>
+              <div class="fee-row divider">
+                <span>You Will Receive</span>
+                <span id="calcFinal">₦0</span>
+              </div>
+              <div class="fee-note">
+                <i class="fas fa-info-circle"></i> ${FEE_PERCENT}% processing fee applies to all withdrawals
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label><i class="fas fa-university"></i> Bank Name</label>
+              <div class="input-wrap">
+                <i class="fas fa-building-columns field-icon"></i>
+                <input type="text" id="bankName" placeholder="e.g. GTBank, Access Bank" required>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label><i class="fas fa-user"></i> Account Name</label>
+              <div class="input-wrap">
+                <i class="fas fa-signature field-icon"></i>
+                <input type="text" id="accountName" placeholder="Name on bank account" required>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label><i class="fas fa-credit-card"></i> Account Number</label>
+              <div class="input-wrap">
+                <i class="fas fa-hashtag field-icon"></i>
+                <input type="text" id="accountNumber" maxlength="10" pattern="[0-9]{10}" placeholder="10-digit account number" required>
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <i class="fas fa-paper-plane"></i> Submit Withdrawal Request
+            </button>
+          </form>
+        </div>
+      `;
+
+      // Live clock
+      startLiveClock('liveClock');
+
+      // Fee calculator
+      const amountInput = document.getElementById('amount');
+      const feeCalc = document.getElementById('feeCalculator');
+
+      amountInput.addEventListener('input', () => {
+        const amt = Number(amountInput.value);
+        if (amt >= MIN_WITHDRAWAL && amt <= balance) {
+          const fee = Math.floor(amt * (FEE_PERCENT / 100));
+          const finalAmt = amt - fee;
+          document.getElementById('calcAmount').textContent = formatNaira(amt);
+          document.getElementById('calcFee').textContent = formatNaira(fee);
+          document.getElementById('calcFinal').textContent = formatNaira(finalAmt);
+          feeCalc.classList.add('show');
+        } else {
+          feeCalc.classList.remove('show');
+        }
+      });
+
+      // Form submission
+      document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const amount = Number(document.getElementById('amount').value);
+        const bankName = document.getElementById('bankName').value.trim();
+        const accountName = document.getElementById('accountName').value.trim();
+        const accountNumber = document.getElementById('accountNumber').value.trim();
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Re-validate all rules
+        if (isSunday()) return Swal.fire({ icon: 'warning', title: 'Sunday', text: 'Withdrawals are not processed on Sundays.', confirmButtonColor: '#2563eb' });
+        if (!isWithinWindow()) return Swal.fire({ icon: 'warning', title: 'Window Closed', text: `Withdrawals only ${WITHDRAWAL_START_HOUR}AM–${WITHDRAWAL_END_HOUR}PM, Mon–Sat.`, confirmButtonColor: '#2563eb' });
+
+        const currentCount = await countTodayWithdrawals(user.uid);
+        if (currentCount >= MAX_DAILY) return Swal.fire({ icon: 'warning', title: 'Limit Reached', text: 'You have already withdrawn today.', confirmButtonColor: '#2563eb' });
+
+        if (!(await hasActivePlan(user.uid))) return Swal.fire({ icon: 'warning', title: 'Plan Required', text: 'An active investment plan is required to withdraw.', confirmButtonColor: '#2563eb' });
+
+        if (amount < MIN_WITHDRAWAL) return Swal.fire({ icon: 'warning', title: 'Amount Too Low', text: `Minimum withdrawal is ${formatNaira(MIN_WITHDRAWAL)}.`, confirmButtonColor: '#2563eb' });
+        if (amount > balance) return Swal.fire({ icon: 'warning', title: 'Insufficient Balance', text: `Your balance is ${formatNaira(balance)}.`, confirmButtonColor: '#2563eb' });
+        if (accountNumber.length !== 10 || !/^\d+$/.test(accountNumber)) return Swal.fire({ icon: 'warning', title: 'Invalid Account', text: 'Enter a valid 10-digit account number.', confirmButtonColor: '#2563eb' });
+        if (!bankName || !accountName) return Swal.fire({ icon: 'warning', title: 'Missing Details', text: 'Please fill in all bank details.', confirmButtonColor: '#2563eb' });
+
+        const fee = Math.floor(amount * (FEE_PERCENT / 100));
+        const finalAmount = amount - fee;
+
+        // Confirm
+        const confirmResult = await Swal.fire({
+          title: 'Confirm Withdrawal',
+          html: `
+            <div style="background:#f8fafc;border-radius:12px;padding:1rem;margin:0.8rem 0;text-align:left;font-size:0.88rem;">
+              <p style="margin:0.3rem 0;"><strong>Amount:</strong> ${formatNaira(amount)}</p>
+              <p style="margin:0.3rem 0;color:#ef4444;"><strong>Fee (${FEE_PERCENT}%):</strong> -${formatNaira(fee)}</p>
+              <p style="margin:0.3rem 0;color:#16a34a;font-weight:700;"><strong>You Receive:</strong> ${formatNaira(finalAmount)}</p>
+              <hr style="border-color:#e2e8f0;margin:0.5rem 0;">
+              <p style="margin:0.3rem 0;"><strong>Bank:</strong> ${bankName}</p>
+              <p style="margin:0.3rem 0;"><strong>Account:</strong> ${accountName} • ${accountNumber}</p>
+            </div>
+          `,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Confirm Withdrawal',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#2563eb',
+          cancelButtonColor: '#94a3b8'
+        });
+
+        if (!confirmResult.isConfirmed) return;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        try {
+          await runTransaction(db, async (transaction) => {
+            const snap = await transaction.get(userRef);
+            const currBalance = snap.data().wallet || 0;
+            if (currBalance < amount) throw new Error("Insufficient balance. Please refresh.");
+            transaction.update(userRef, { wallet: currBalance - amount });
+            transaction.set(doc(db, `users/${user.uid}/withdrawals`, `WTH_${Date.now()}`), {
+              withdrawalId: `WTH_${Date.now()}`,
+              userId: user.uid,
+              username: userData.fullName || 'User',
+              amount,
+              fee,
+              amountAfterFee: finalAmount,
+              bankName,
+              accountName,
+              accountNumber,
+              status: "pending",
+              createdAt: serverTimestamp()
+            });
+          });
+
+          await Swal.fire({
+            icon: 'success',
+            title: 'Withdrawal Submitted!',
+            html: `<p>${formatNaira(finalAmount)} will be processed to your account.</p><p style="font-size:0.85rem;color:#64748b;">Processing time: ${WITHDRAWAL_START_HOUR}AM–${WITHDRAWAL_END_HOUR}PM, Mon–Sat</p>`,
+            confirmButtonColor: '#2563eb'
+          });
+          window.location.href = "dashboard.html";
+
+        } catch (err) {
+          Swal.fire({ icon: 'error', title: 'Failed', text: err.message, confirmButtonColor: '#ef4444' });
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Withdrawal Request';
+        }
+      });
+
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = `
+        <div class="card-top-strip">
+          <div class="strip-header"><h1>Error</h1></div>
+        </div>
+        <div class="card-body">
+          <div class="locked-panel">
+            <div class="locked-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+            <h2>Something Went Wrong</h2>
+            <p>${err.message}</p>
+            <button class="action-link" onclick="location.reload()" style="border:none;cursor:pointer;">Try Again</button>
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  // ── Reusable locked panel renderer ────────────────────
+  function renderLockedPanel(iconColor, iconClass, title, message, linkHref, linkText) {
+    return `
+      <div class="card-top-strip">
+        <div class="strip-header">
+          <a href="dashboard.html" class="back-circle"><i class="fas fa-arrow-left"></i></a>
+          <h1>Withdrawal</h1>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="locked-panel">
+          <div class="locked-icon ${iconColor}"><i class="fas ${iconClass}"></i></div>
+          <h2>${title}</h2>
+          <p>${message}</p>
+          <a href="${linkHref}" class="action-link">${linkText}</a>
+        </div>
+      </div>
+    `;
+  }
+</script>
+</body>
+</html>
