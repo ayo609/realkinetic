@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Kinectwealth • Admin Dashboard</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #3b82f6;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --sidebar-bg: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --input-bg: #f8fafc;
+      --hover-bg: #eff6ff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --sidebar-bg: #1e293b;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #334155;
+      --border-light: #1e293b;
+      --input-bg: #0f172a;
+      --hover-bg: #1e3a5f;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg); display: flex; align-items: center;
+      justify-content: center; z-index: 9999; flex-direction: column; gap: 1rem;
+    }
+    .loading-overlay.fade-out { opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+    .loader-spin {
+      width: 48px; height: 48px; border: 4px solid var(--border);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Access Denied */
+    .access-denied-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg); display: none; align-items: center;
+      justify-content: center; z-index: 10000; padding: 1rem;
+    }
+    .access-denied-overlay.show { display: flex; }
+    .denied-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 24px; padding: 2.5rem 2rem; max-width: 420px;
+      width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    .denied-card .icon-circle {
+      width: 72px; height: 72px; background: #fef2f2;
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 1.2rem; font-size: 2rem; color: #ef4444;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 270px; background: var(--sidebar-bg);
+      border-right: 1px solid var(--border); padding: 1.8rem 1.3rem;
+      position: fixed; left: 0; top: 0; bottom: 0;
+      overflow-y: auto; z-index: 50; transition: transform 0.3s;
+    }
+    .sidebar-header {
+      display: flex; align-items: center; gap: 0.7rem;
+      margin-bottom: 1.8rem; padding-bottom: 1.3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.2rem; color: #fff;
+      box-shadow: 0 6px 16px rgba(37,99,235,0.3);
+    }
+    .sidebar-brand {
+      font-family: 'Outfit', sans-serif; font-size: 1.2rem;
+      font-weight: 800; color: var(--text); letter-spacing: -0.02em;
+    }
+    .sidebar-user {
+      background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1rem; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .user-avatar-circle {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-weight: 700; color: #fff; font-size: 1rem;
+    }
+    .user-detail h4 { font-size: 0.9rem; color: var(--text); margin-bottom: 2px; }
+    .user-detail p { font-size: 0.72rem; color: var(--text-secondary); }
+
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.7rem 1rem; border-radius: 12px;
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+    }
+    .nav-link i { width: 18px; font-size: 1rem; }
+    .nav-link:hover { background: var(--hover-bg); color: var(--text); }
+    .nav-link.active {
+      background: var(--primary); color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    }
+    .nav-link .badge {
+      margin-left: auto; background: rgba(0,0,0,0.15);
+      padding: 0.15rem 0.55rem; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 700;
+    }
+    .nav-divider {
+      margin: 1.2rem 0 0.8rem; font-size: 0.68rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-muted); padding-left: 1rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 270px; padding: 1.8rem 2rem;
+      position: relative; z-index: 20; min-height: 100vh;
+    }
+    .top-bar {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1rem 1.5rem; margin-bottom: 1.8rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .page-title h1 {
+      font-family: 'Outfit', sans-serif; font-size: 1.4rem;
+      font-weight: 700; color: var(--text);
+    }
+    .page-title p { font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px; }
+    .top-actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+    .action-chip {
+      padding: 0.5rem 1rem; border-radius: 25px; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+      background: var(--input-bg); color: var(--text-secondary);
+      display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;
+      font-family: 'Inter', sans-serif; white-space: nowrap;
+    }
+    .action-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .action-chip.logout { background: #fef2f2; border-color: #fecaca; color: #ef4444; }
+    .action-chip.logout:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+    /* Stats */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem; margin-bottom: 1.8rem;
+    }
+    .stat-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.4rem; transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .stat-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+    .stat-card .stat-icon {
+      width: 44px; height: 44px; background: #eff6ff;
+      border-radius: 13px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.2rem; color: var(--primary);
+      margin-bottom: 0.8rem;
+    }
+    .stat-card .stat-value {
+      font-family: 'Outfit', sans-serif; font-size: 1.8rem;
+      font-weight: 700; color: var(--text); margin-bottom: 4px;
+    }
+    .stat-card .stat-label { font-size: 0.78rem; color: var(--text-muted); }
+    .stat-card .stat-sub {
+      font-size: 0.72rem; color: var(--success); margin-top: 4px;
+      display: flex; align-items: center; gap: 0.2rem;
+    }
+
+    /* Charts */
+    .charts-row {
+      display: grid; grid-template-columns: 2fr 1fr;
+      gap: 1.2rem; margin-bottom: 1.8rem;
+    }
+    .chart-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.4rem;
+    }
+    .chart-card h3 {
+      font-size: 0.95rem; font-weight: 700; color: var(--text);
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .chart-container { height: 280px; position: relative; }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.8rem;
+    }
+    .quick-btn {
+      padding: 0.7rem 1.3rem; border-radius: 14px;
+      font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); background: var(--card-bg);
+      color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 0.5rem;
+      transition: all 0.2s; font-family: 'Inter', sans-serif;
+    }
+    .quick-btn:hover { border-color: var(--primary); background: var(--hover-bg); }
+    .quick-btn i { color: var(--primary); }
+
+    /* Tables */
+    .table-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.4rem; margin-bottom: 1.5rem;
+    }
+    .table-card h3 {
+      font-size: 0.95rem; font-weight: 700; color: var(--text);
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 500px; font-size: 0.83rem; }
+    th {
+      text-align: left; padding: 0.7rem 0.6rem; color: var(--text-muted);
+      font-weight: 600; font-size: 0.72rem; text-transform: uppercase;
+      letter-spacing: 0.03em; border-bottom: 2px solid var(--border);
+    }
+    td { padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--border); color: var(--text); }
+    tr:hover td { background: var(--input-bg); }
+    .badge-status {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 700;
+    }
+    .badge-deposit { background: #f0fdf4; color: #16a34a; }
+    .badge-withdrawal { background: #fffbeb; color: #d97706; }
+    .badge-pending { background: #fefce8; color: #ca8a04; }
+
+    /* Reset Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1000;
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; max-width: 440px; width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .menu-toggle-btn {
+      display: none; position: fixed; top: 1rem; left: 1rem; z-index: 100;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; width: 42px; height: 42px;
+      align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--text); cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; padding: 1rem; }
+      .menu-toggle-btn { display: flex; }
+      .charts-row { grid-template-columns: 1fr; }
+      .top-bar { margin-top: 3rem; }
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-spin"></div>
+  <p style="color:var(--text-secondary);">Verifying admin access...</p>
+</div>
+
+<div class="access-denied-overlay" id="accessDenied">
+  <div class="denied-card">
+    <div class="icon-circle"><i class="fas fa-lock"></i></div>
+    <h2>Access Denied</h2>
+    <p style="color:var(--text-secondary);margin:0.5rem 0 1.5rem;">You don't have administrator privileges.</p>
+    <button onclick="window.location.href='admin-login.html'" style="width:100%;padding:0.8rem;background:var(--primary);color:#fff;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Return to Login</button>
+  </div>
+</div>
+
+<div class="menu-toggle-btn" id="menuToggle"><i class="fas fa-bars"></i></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">⚡</div>
+    <span class="sidebar-brand">Kinectwealth</span>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar-circle" id="adminInitial">A</div>
+    <div class="user-detail">
+      <h4 id="adminName">Loading...</h4>
+      <p><i class="fas fa-circle" style="font-size:0.4rem;color:var(--success);"></i> Administrator</p>
+    </div>
+  </div>
+  <ul class="nav-list">
+    <li class="nav-item"><a href="admin-dashboard.html" class="nav-link active"><i class="fas fa-chart-pie"></i>Dashboard</a></li>
+    <li class="nav-item"><a href="admin-users.html" class="nav-link"><i class="fas fa-users"></i>Users<span class="badge" id="userCount">0</span></a></li>
+    <li class="nav-item"><a href="admin-deposits.html" class="nav-link"><i class="fas fa-arrow-down"></i>Deposits<span class="badge" id="pendingDeposits">0</span></a></li>
+    <li class="nav-item"><a href="admin-withdrawals.html" class="nav-link"><i class="fas fa-arrow-up"></i>Withdrawals<span class="badge" id="pendingWithdrawals">0</span></a></li>
+    <li class="nav-item"><a href="admin-investments.html" class="nav-link"><i class="fas fa-chart-line"></i>Investments<span class="badge" id="activeInvestments">0</span></a></li>
+    <div class="nav-divider">Management</div>
+    <li class="nav-item"><a href="admin-referrals.html" class="nav-link"><i class="fas fa-share-nodes"></i>Referrals</a></li>
+    <li class="nav-item"><a href="admin-transactions.html" class="nav-link"><i class="fas fa-history"></i>Transactions</a></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="mainContent" style="display:none;">
+  <div class="top-bar">
+    <div class="page-title">
+      <h1>Dashboard Overview</h1>
+      <p id="welcomeMessage">Welcome back, Admin. Here's what's happening today.</p>
+    </div>
+    <div class="top-actions">
+      <button class="action-chip" id="themeToggle"><i class="fas fa-sun"></i> Light</button>
+      <button class="action-chip" id="resetBtn"><i class="fas fa-trash-alt"></i> Reset</button>
+      <span class="action-chip" style="cursor:default;"><i class="far fa-calendar"></i> <span id="currentDate"></span></span>
+      <button class="action-chip logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-value" id="totalUsers">0</div><div class="stat-label">Total Users</div><div class="stat-sub"><i class="fas fa-arrow-up"></i> Registered</div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-value" id="totalInvested">₦0</div><div class="stat-label">Total Invested</div><div class="stat-sub"><i class="fas fa-arrow-up"></i> Active plans</div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-value" id="pendingCount">0</div><div class="stat-label">Pending Actions</div><div class="stat-sub"><i class="fas fa-hourglass-half"></i> Needs attention</div></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Revenue Overview (7 Days)</h3><div class="chart-container"><canvas id="revenueChart"></canvas></div></div>
+    <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Distribution</h3><div class="chart-container"><canvas id="txChart"></canvas></div></div>
+  </div>
+
+  <div class="quick-actions">
+    <a href="admin-deposits.html" class="quick-btn"><i class="fas fa-eye"></i> Review Deposits</a>
+    <a href="admin-withdrawals.html" class="quick-btn"><i class="fas fa-check-circle"></i> Process Withdrawals</a>
+    <a href="admin-users.html" class="quick-btn"><i class="fas fa-user-plus"></i> Manage Users</a>
+  </div>
+
+  <div class="table-card">
+    <h3><i class="fas fa-history"></i> Recent Transactions</h3>
+    <div class="table-wrap"><table id="recentTxTable"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="recentTxBody"><tr><td colspan="5" style="text-align:center;padding:2rem;">Loading...</td></tr></tbody></table></div>
+  </div>
+
+  <div class="table-card">
+    <h3><i class="fas fa-clock"></i> Pending Withdrawals</h3>
+    <div class="table-wrap"><table id="pendingWTable"><thead><tr><th>User</th><th>Amount</th><th>Bank</th><th>Date</th></tr></thead><tbody id="pendingWBody"><tr><td colspan="4" style="text-align:center;padding:2rem;">Loading...</td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- Reset Modal -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal-box">
+    <div style="text-align:center;margin-bottom:1.2rem;">
+      <div style="width:56px;height:56px;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.8rem;font-size:1.5rem;">⚠️</div>
+      <h3 style="color:var(--danger);">Factory Reset</h3>
+      <p style="color:var(--text-secondary);font-size:0.85rem;">This will permanently delete ALL platform data. This cannot be undone.</p>
+    </div>
+    <div style="background:var(--input-bg);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">Type <strong>RESET</strong> to confirm:</p>
+      <input type="text" id="resetInput" placeholder="Type RESET here..." style="width:100%;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);outline:none;">
+    </div>
+    <div style="display:flex;gap:0.8rem;">
+      <button onclick="closeResetModal()" style="flex:1;padding:0.7rem;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--text);cursor:pointer;font-family:'Inter',sans-serif;">Cancel</button>
+      <button id="confirmResetBtn" onclick="confirmReset()" disabled style="flex:1;padding:0.7rem;border:none;border-radius:12px;background:var(--danger);color:#fff;cursor:pointer;font-family:'Inter',sans-serif;opacity:0.5;">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection, writeBatch, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+  authDomain: "realkinetic-72248.firebaseapp.com",
+  projectId: "realkinetic-72248",
+  storageBucket: "realkinetic-72248.firebasestorage.app",
+  messagingSenderId: "307505218118",
+  appId: "1:307505218118:web:010dc757c598f4b87d0047"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const html = document.documentElement;
+let revenueChart, txChart;
+
+// ── Theme ───────────────────────────────────────────────
+const savedTheme = localStorage.getItem('kinectwealth_admin_theme') || 'light';
+html.setAttribute('data-theme', savedTheme);
+updateThemeButton();
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('kinectwealth_admin_theme', next);
+  updateThemeButton();
+  updateCharts();
+});
+
+function updateThemeButton() {
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fas fa-moon"></i> Dark' : '<i class="fas fa-sun"></i> Light';
+}
+
+// ── Admin Verification ──────────────────────────────────
+async function verifyAdmin(user) {
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists()) return false;
+  const data = snap.data();
+  if (data.role === 'admin') {
+    document.getElementById('adminName').textContent = data.fullName || 'Admin';
+    document.getElementById('adminInitial').textContent = (data.fullName || 'A').charAt(0).toUpperCase();
+    return true;
+  }
+  return false;
+}
+
+// ── Load Dashboard ──────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const usersSnap = await getDocs(collection(db, 'users'));
+    const userDocs = usersSnap.docs;
+    const totalUsers = userDocs.length;
+
+    let totalInvested = 0, pendingD = 0, pendingW = 0, activeInv = 0;
+    const dayD = [0,0,0,0,0,0,0], dayW = [0,0,0,0,0,0,0], dayI = [0,0,0,0,0,0,0];
+    const recentTx = [], pendingWList = [];
+    const now = new Date();
+
+    for (const uDoc of userDocs) {
+      const uid = uDoc.id;
+      const uData = uDoc.data();
+
+      // Active plans
+      const plansSnap = await getDocs(collection(db, `users/${uid}/activePlans`));
+      plansSnap.forEach(p => {
+        const d = p.data();
+        if (d.status === 'active') {
+          totalInvested += d.capital || 0;
+          activeInv++;
+          const dt = d.startDate?.toDate?.() || new Date();
+          const idx = dayIndex(dt, now);
+          if (idx >= 0) dayI[idx] += d.capital || 0;
+        }
+      });
+
+      // Deposits
+      const depSnap = await getDocs(collection(db, `users/${uid}/deposits`));
+      depSnap.forEach(d => {
+        if (d.data().status === 'pending') pendingD++;
+        const dt = d.data().createdAt?.toDate?.() || new Date();
+        const idx = dayIndex(dt, now);
+        if (idx >= 0) dayD[idx] += d.data().amount || 0;
+        if (recentTx.length < 8) recentTx.push({ user: uData.fullName || '—', type: 'Deposit', amount: d.data().amount || 0, status: d.data().status || 'pending', date: dt });
+      });
+
+      // Withdrawals
+      const wSnap = await getDocs(collection(db, `users/${uid}/withdrawals`));
+      wSnap.forEach(w => {
+        if (w.data().status === 'pending') pendingW++;
+        const dt = w.data().createdAt?.toDate?.() || new Date();
+        const idx = dayIndex(dt, now);
+        if (idx >= 0) dayW[idx] += w.data().amount || 0;
+        if (pendingWList.length < 5 && w.data().status === 'pending') {
+          pendingWList.push({ user: uData.fullName || '—', amount: w.data().amount || 0, bank: w.data().bankName || '—', date: dt });
+        }
+        if (recentTx.length < 8) recentTx.push({ user: uData.fullName || '—', type: 'Withdrawal', amount: w.data().amount || 0, status: w.data().status || 'pending', date: dt });
+      });
+    }
+
+    recentTx.sort((a,b) => b.date - a.date);
+    pendingWList.sort((a,b) => b.date - a.date);
+
+    // Update UI
+    document.getElementById('totalUsers').textContent = totalUsers;
+    document.getElementById('totalInvested').textContent = '₦' + totalInvested.toLocaleString();
+    document.getElementById('pendingCount').textContent = pendingD + pendingW;
+    document.getElementById('userCount').textContent = totalUsers;
+    document.getElementById('pendingDeposits').textContent = pendingD;
+    document.getElementById('pendingWithdrawals').textContent = pendingW;
+    document.getElementById('activeInvestments').textContent = activeInv;
+
+    // Tables
+    const txBody = document.getElementById('recentTxBody');
+    if (recentTx.length === 0) txBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">No transactions</td></tr>';
+    else txBody.innerHTML = recentTx.slice(0,8).map(tx => `
+      <tr><td>${tx.user}</td><td><span class="badge-status ${tx.type==='Deposit'?'badge-deposit':'badge-withdrawal'}">${tx.type}</span></td>
+      <td>₦${(tx.amount||0).toLocaleString()}</td><td><span class="badge-status badge-pending">${tx.status}</span></td>
+      <td>${tx.date.toLocaleDateString()}</td></tr>`).join('');
+
+    const pwBody = document.getElementById('pendingWBody');
+    if (pendingWList.length === 0) pwBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">No pending withdrawals</td></tr>';
+    else pwBody.innerHTML = pendingWList.slice(0,5).map(w => `
+      <tr><td>${w.user}</td><td style="color:#d97706;font-weight:600;">₦${(w.amount||0).toLocaleString()}</td>
+      <td>${w.bank}</td><td>${w.date.toLocaleDateString()}</td></tr>`).join('');
+
+    // Charts
+    const labels = [];
+    for (let i=6;i>=0;i--) { const d = new Date(now); d.setDate(d.getDate()-i); labels.push(d.toLocaleDateString('en-US',{weekday:'short',day:'numeric'})); }
+
+    buildCharts({ labels, deposits: dayD, withdrawals: dayW, investments: dayI, breakdown: [pendingD, pendingW, activeInv] });
+
+  } catch(err) { console.error('Dashboard error:', err); }
+}
+
+function dayIndex(date, now) {
+  if (!date) return -1;
+  const diff = Math.floor((now - date) / 86400000);
+  return (diff >= 0 && diff <= 6) ? 6 - diff : -1;
+}
+
+function buildCharts(data) {
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+
+  if (revenueChart) revenueChart.destroy();
+  if (txChart) txChart.destroy();
+
+  const ctx1 = document.getElementById('revenueChart').getContext('2d');
+  revenueChart = new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: data.labels,
+      datasets: [
+        { label: 'Deposits', data: data.deposits, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.06)', fill: true, tension: 0.4 },
+        { label: 'Withdrawals', data: data.withdrawals, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.06)', fill: true, tension: 0.4 },
+        { label: 'Investments', data: data.investments, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.06)', fill: true, tension: 0.4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: textColor, font: { size: 11 } } } }, scales: { y: { ticks: { color: textColor } }, x: { ticks: { color: textColor } } } }
+  });
+
+  const ctx2 = document.getElementById('txChart').getContext('2d');
+  txChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pending Deposits', 'Pending Withdrawals', 'Active Investments'],
+      datasets: [{ data: data.breakdown, backgroundColor: ['#16a34a', '#ef4444', '#2563eb'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { size: 10 } } } } }
+  });
+}
+
+function updateCharts() {
+  if (revenueChart) {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const c = isDark ? '#94a3b8' : '#64748b';
+    revenueChart.options.plugins.legend.labels.color = c;
+    revenueChart.options.scales.y.ticks.color = c;
+    revenueChart.options.scales.x.ticks.color = c;
+    revenueChart.update();
+    if (txChart) { txChart.options.plugins.legend.labels.color = c; txChart.update(); }
+  }
+}
+
+// ── Date ────────────────────────────────────────────────
+function updateDate() {
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+}
+
+// ── Reset ───────────────────────────────────────────────
+const resetModal = document.getElementById('resetModal');
+document.getElementById('resetBtn').addEventListener('click', () => resetModal.classList.add('active'));
+window.closeResetModal = () => { resetModal.classList.remove('active'); document.getElementById('resetInput').value = ''; document.getElementById('confirmResetBtn').disabled = true; };
+
+document.getElementById('resetInput').addEventListener('input', function() {
+  document.getElementById('confirmResetBtn').disabled = this.value !== 'RESET';
+  document.getElementById('confirmResetBtn').style.opacity = this.value === 'RESET' ? '1' : '0.5';
+});
+
+window.confirmReset = async () => {
+  if (document.getElementById('resetInput').value !== 'RESET') return;
+  closeResetModal();
+
+  const sure = await Swal.fire({
+    title: '⚠️ Final Warning',
+    text: 'This will permanently delete ALL platform data. This CANNOT be reversed.',
+    icon: 'warning', showCancelButton: true,
+    confirmButtonText: 'Yes, Wipe Everything',
+    confirmButtonColor: '#ef4444'
+  });
+  if (!sure.isConfirmed) return;
+
+  Swal.fire({ title: 'Resetting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+  try {
+    const usersSnap = await getDocs(collection(db, 'users'));
+    const docs = usersSnap.docs;
+    const SUB = ['deposits','withdrawals','activePlans','transactions','referrals','loanApplications'];
+    
+    for (let i = 0; i < docs.length; i++) {
+      for (const sub of SUB) {
+        let snap = await getDocs(collection(db, `users/${docs[i].id}/${sub}`));
+        while (!snap.empty) {
+          const batch = writeBatch(db);
+          snap.docs.slice(0, 500).forEach(d => batch.delete(d.ref));
+          await batch.commit();
+          snap = await getDocs(collection(db, `users/${docs[i].id}/${sub}`));
+        }
+      }
+      await deleteDoc(docs[i].ref);
+    }
+
+    await signOut(auth);
+    Swal.fire({ icon: 'success', title: 'Reset Complete', text: 'All data wiped. Redirecting...', timer: 2000, showConfirmButton: false });
+    setTimeout(() => window.location.href = 'admin-login.html', 2000);
+  } catch(err) {
+    Swal.fire({ icon: 'error', title: 'Failed', text: err.message });
+  }
+};
+
+// ── Events ──────────────────────────────────────────────
+document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'admin-login.html'; });
+
+// ── Auth ────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'admin-login.html'; return; }
+  
+  const isAdmin = await verifyAdmin(user);
+  setTimeout(() => document.getElementById('loadingOverlay').classList.add('fade-out'), 600);
+
+  if (!isAdmin) {
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('accessDenied').classList.add('show');
+  } else {
+    document.getElementById('mainContent').style.display = 'block';
+    updateDate();
+    await loadDashboard();
+  }
+});
+</script>
+</body>
+</html>
