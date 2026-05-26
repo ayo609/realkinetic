@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinectwealth | Admin Panel</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --danger: #ef4444;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --bg: #f0f4ff;
+  --card-bg: #ffffff;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(160deg, #f0f4ff 0%, #e8f0fe 30%, #f5f7ff 60%, #eff6ff 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background Decorations */
+.bg-blob {
+  position: fixed;
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0.05;
+  pointer-events: none;
+}
+.bg-blob-1 {
+  width: 500px; height: 500px;
+  top: -150px; right: -100px;
+  background: #2563eb;
+  animation: floatSlow 22s infinite alternate;
+}
+.bg-blob-2 {
+  width: 400px; height: 400px;
+  bottom: -120px; left: -80px;
+  background: #3b82f6;
+  animation: floatSlow 18s infinite alternate-reverse;
+}
+@keyframes floatSlow {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(60px, 40px) scale(1.1); }
+}
+
+/* Main Container */
+.login-wrapper {
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 10;
+  animation: slideUp 0.6s ease-out;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Admin Card */
+.admin-card {
+  background: var(--card-bg);
+  border-radius: 28px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.1), 0 4px 16px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+.admin-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1e40af, #2563eb, #3b82f6, #2563eb, #1e40af);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Header */
+.card-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.admin-icon {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.2rem;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.3);
+}
+.admin-icon i {
+  font-size: 2rem;
+  color: #ffffff;
+}
+.card-header h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.02em;
+}
+.card-header .subtitle {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.card-header .subtitle i {
+  color: #2563eb;
+  font-size: 0.75rem;
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 1.4rem;
+}
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.form-group label i {
+  color: #2563eb;
+  font-size: 0.85rem;
+}
+.input-wrap {
+  position: relative;
+}
+.input-wrap input {
+  width: 100%;
+  padding: 0.95rem 1rem 0.95rem 2.8rem;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: #f8fafc;
+  color: var(--text);
+  font-size: 0.93rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s;
+  outline: none;
+}
+.input-wrap input:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+.input-wrap input::placeholder {
+  color: #94a3b8;
+}
+.input-wrap .field-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #2563eb;
+  font-size: 0.9rem;
+  opacity: 0.5;
+  transition: all 0.3s;
+}
+.input-wrap input:focus ~ .field-icon {
+  opacity: 1;
+}
+
+/* Password Toggle */
+.password-toggle {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.4rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+  border-radius: 8px;
+}
+.password-toggle:hover {
+  color: #2563eb;
+  background: #f1f5f9;
+}
+
+/* Login Button */
+.btn-login {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  border-radius: 14px;
+  border: none;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: 'Inter', sans-serif;
+}
+.btn-login:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.4);
+  background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+}
+.btn-login:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Footer Link */
+.card-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.card-footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.card-footer a:hover {
+  color: #2563eb;
+  gap: 0.7rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .admin-card { padding: 2rem 1.5rem; }
+  .card-header h1 { font-size: 1.5rem; }
+  .admin-icon { width: 60px; height: 60px; }
+  .admin-icon i { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background Blobs -->
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+
+<div class="login-wrapper">
+  <div class="admin-card">
+    
+    <!-- Header -->
+    <div class="card-header">
+      <div class="admin-icon">
+        <i class="fas fa-shield-halved"></i>
+      </div>
+      <h1>Kinectwealth</h1>
+      <div class="subtitle">
+        <i class="fas fa-lock"></i>
+        ADMINISTRATOR ACCESS
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <form id="adminLoginForm">
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="email" placeholder="admin@kinectwealth.com" required autocomplete="email">
+          <i class="fas fa-envelope field-icon"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+          <i class="fas fa-key field-icon"></i>
+          <button type="button" class="password-toggle" id="togglePassword">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-login" id="loginBtn" type="submit">
+        <i class="fas fa-right-to-bracket"></i>
+        Access Admin Panel
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <a href="login.html">
+        <i class="fas fa-arrow-left"></i>
+        Back to User Login
+      </a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+  authDomain: "realkinetic-72248.firebaseapp.com",
+  projectId: "realkinetic-72248",
+  storageBucket: "realkinetic-72248.firebasestorage.app",
+  messagingSenderId: "307505218118",
+  appId: "1:307505218118:web:010dc757c598f4b87d0047"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Set persistence
+await setPersistence(auth, browserLocalPersistence);
+
+console.log('🔐 Kinectwealth Admin Login initialized');
+
+// Password Toggle
+document.getElementById('togglePassword').addEventListener('click', () => {
+  const passwordInput = document.getElementById('password');
+  const icon = document.querySelector('#togglePassword i');
+  
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    passwordInput.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+});
+
+// Login Form Submit
+document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn = document.getElementById('loginBtn');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!email || !password) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Information',
+      text: 'Please enter both email and password.',
+      confirmButtonColor: '#2563eb'
+    });
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+  try {
+    // Sign in
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    // Check admin role
+    const userDoc = await getDoc(doc(db, 'users', uid));
+
+    if (!userDoc.exists()) {
+      await auth.signOut();
+      throw new Error('User profile not found');
+    }
+
+    const userData = userDoc.data();
+
+    if (userData.role !== 'admin') {
+      await auth.signOut();
+      
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Access Admin Panel';
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Access Denied',
+        text: 'This account does not have administrator privileges.',
+        confirmButtonColor: '#ef4444'
+      });
+      return;
+    }
+
+    // Success
+    Swal.fire({
+      icon: 'success',
+      title: 'Welcome Back, Admin!',
+      html: '<p>Authentication successful.</p><p style="color:#64748b;margin-top:0.4rem;">Redirecting to admin dashboard...</p>',
+      timer: 1800,
+      showConfirmButton: false,
+      willClose: () => {
+        window.location.href = 'admin-dashboard.html';
+      }
+    });
+
+  } catch (err) {
+    console.error('Admin login error:', err);
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Access Admin Panel';
+
+    let title = 'Login Failed';
+    let message = 'An error occurred. Please try again.';
+
+    if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      title = 'Invalid Credentials';
+      message = 'Incorrect email or password.';
+    } else if (err.code === 'auth/user-not-found') {
+      title = 'Account Not Found';
+      message = 'No account exists with this email.';
+    } else if (err.code === 'auth/invalid-email') {
+      title = 'Invalid Email';
+      message = 'Please enter a valid email address.';
+    } else if (err.code === 'auth/too-many-requests') {
+      title = 'Too Many Attempts';
+      message = 'Access temporarily disabled. Try again later.';
+    } else if (err.code === 'auth/network-request-failed') {
+      title = 'Network Error';
+      message = 'Please check your internet connection.';
+    }
+
+    Swal.fire({
+      icon: 'error',
+      title: title,
+      text: message,
+      confirmButtonColor: '#2563eb'
+    });
+  }
+});
+</script>
+
+</body>
+</html>
