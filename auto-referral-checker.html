@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kinectwealth • Auto Referral Bonus Checker</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb; --primary-dark: #1d4ed8; --primary-light: #3b82f6;
+      --success: #16a34a; --warning: #f59e0b; --danger: #ef4444;
+      --bg: #f8fafc; --card-bg: #ffffff;
+      --text: #1e293b; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border: #e2e8f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: linear-gradient(160deg, #f0f4ff 0%, #e8f0fe 30%, #f5f7ff 60%, #eff6ff 100%); color: var(--text); min-height: 100vh; padding: 2rem; }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .header-card {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb, #3b82f6);
+      border-radius: 24px; padding: 2.5rem; margin-bottom: 2rem;
+      text-align: center; color: #fff; box-shadow: 0 12px 30px rgba(37,99,235,0.2);
+    }
+    .header-card .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .header-card h1 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .header-card p { opacity: 0.85; font-size: 0.95rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .stat-card .value { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; color: var(--primary); }
+    .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .action-card { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+    .action-card h3 { font-family: 'Outfit', sans-serif; font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .action-card p { color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+    .btn { padding: 1rem 2.5rem; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.6rem; }
+    .btn-primary { background: linear-gradient(135deg, #1e40af, #2563eb); color: #fff; box-shadow: 0 8px 24px rgba(37,99,235,0.3); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(37,99,235,0.4); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-success { background: #16a34a; color: #fff; box-shadow: 0 8px 24px rgba(22,163,74,0.3); }
+    .btn-success:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(22,163,74,0.4); }
+
+    .log-container { background: #1e293b; border-radius: 16px; padding: 1.5rem; max-height: 500px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.82rem; color: #e2e8f0; line-height: 1.6; }
+    .log-entry { padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .log-success { color: #4ade80; }
+    .log-error { color: #f87171; }
+    .log-warning { color: #fbbf24; }
+    .log-info { color: #60a5fa; }
+
+    .progress-bar-outer { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 1rem 0; }
+    .progress-bar-inner { height: 100%; background: linear-gradient(90deg, #2563eb, #16a34a); border-radius: 4px; transition: width 0.3s; width: 0%; }
+
+    @media (max-width: 600px) { body { padding: 1rem; } .header-card { padding: 1.8rem; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="icon">🔄</div>
+    <h1>Auto Referral Bonus Checker</h1>
+    <p>Scans all users and automatically credits unpaid referral bonuses</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="value" id="totalUsers">0</div><div class="label">Total Users</div></div>
+    <div class="stat-card"><div class="value" id="referralsFound">0</div><div class="label">Referral Links</div></div>
+    <div class="stat-card"><div class="value" id="bonusesPaid">0</div><div class="label">Bonuses Paid</div></div>
+    <div class="stat-card"><div class="value" id="totalAmount">₦0</div><div class="label">Total Credited</div></div>
+  </div>
+
+  <!-- Action -->
+  <div class="action-card">
+    <h3><i class="fas fa-sync-alt"></i> Run Auto-Checker</h3>
+    <p>This will scan all users, check for unpaid referral bonuses, and credit them automatically.</p>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+    <button class="btn btn-primary" id="runCheckerBtn" onclick="runAutoChecker()">
+      <i class="fas fa-play"></i> Start Auto-Check
+    </button>
+    <button class="btn btn-success" id="fixAllBtn" onclick="fixAllReferrals()" style="margin-left:1rem;" disabled>
+      <i class="fas fa-wrench"></i> Fix & Credit All
+    </button>
+  </div>
+
+  <!-- Log -->
+  <div class="action-card" style="text-align:left;">
+    <h3><i class="fas fa-terminal"></i> Process Log</h3>
+    <div class="log-container" id="logContainer">
+      <div class="log-entry log-info">🟢 System ready. Click "Start Auto-Check" to begin.</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, doc, getDoc, getDocs, collection, runTransaction, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+  authDomain: "realkinetic-72248.firebaseapp.com",
+  projectId: "realkinetic-72248",
+  storageBucket: "realkinetic-72248.firebasestorage.app",
+  messagingSenderId: "307505218118",
+  appId: "1:307505218118:web:010dc757c598f4b87d0047"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const REFERRAL_RATES = { 1: 0.10, 2: 0.03, 3: 0.01 };
+const fm = (v) => "₦" + Number(v || 0).toLocaleString();
+
+let allUsers = [];
+let bonusesPaid = 0;
+let totalAmountPaid = 0;
+
+// Logging
+function log(message, type = 'info') {
+  const container = document.getElementById('logContainer');
+  const colors = { success: 'log-success', error: 'log-error', warning: 'log-warning', info: 'log-info' };
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${colors[type] || 'log-info'}`;
+  entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+  container.appendChild(entry);
+  container.scrollTop = container.scrollHeight;
+}
+
+function updateProgress(percent) {
+  document.getElementById('progressBar').style.width = percent + '%';
+}
+
+// 🔥 Get user's invested amount from active plans
+async function getUserInvested(userId) {
+  const snap = await getDocs(collection(db, `users/${userId}/activePlans`));
+  let total = 0;
+  snap.forEach(d => total += Number(d.data().capital || 0));
+  return total;
+}
+
+// 🔥 Get total already earned by upliner from this downline
+async function getExistingEarnings(uplinerId, downlineId) {
+  const refDoc = await getDoc(doc(db, `users/${uplinerId}/referrals`, downlineId));
+  return refDoc.exists() ? (refDoc.data().totalEarned || 0) : 0;
+}
+
+// 🔥 Calculate expected earnings based on downline's total investment
+function calculateExpectedEarnings(totalInvested, rate) {
+  return Math.floor(totalInvested * rate);
+}
+
+// 🔥 Credit missing referral bonus
+async function creditReferralBonus(uplinerId, downlineId, downlineName, level, expectedEarnings, alreadyEarned) {
+  const missingAmount = expectedEarnings - alreadyEarned;
+  if (missingAmount <= 0) return 0;
+
+  try {
+    await runTransaction(db, async (t) => {
+      const uplinerRef = doc(db, 'users', uplinerId);
+      const uplinerSnap = await t.get(uplinerRef);
+      if (!uplinerSnap.exists()) return;
+
+      // Credit wallet
+      t.update(uplinerRef, {
+        wallet: increment(missingAmount),
+        totalEarnings: increment(missingAmount)
+      });
+
+      // Update referral record
+      const refDocRef = doc(db, `users/${uplinerId}/referrals`, downlineId);
+      const refSnap = await t.get(refDocRef);
+      const prevTotal = refSnap.exists() ? (refSnap.data().totalEarned || 0) : 0;
+
+      t.set(refDocRef, {
+        referredUserId: downlineId,
+        referredUserName: downlineName,
+        referredUsername: downlineName,
+        level: level,
+        commission: REFERRAL_RATES[level] * 100,
+        lastInvestment: expectedEarnings / REFERRAL_RATES[level],
+        lastInvestmentDate: serverTimestamp(),
+        totalEarned: prevTotal + missingAmount,
+        updatedAt: serverTimestamp(),
+        autoCorrected: true,
+        autoCorrectedAt: serverTimestamp()
+      }, { merge: true });
+
+      // Save transaction record for dashboard
+      const txRef = doc(collection(db, `users/${uplinerId}/transactions`));
+      t.set(txRef, {
+        type: 'referral_bonus',
+        amount: missingAmount,
+        status: 'completed',
+        level: level,
+        description: `Auto-corrected referral bonus from ${downlineName} (L${level})`,
+        downlineId: downlineId,
+        downlineName: downlineName,
+        autoCorrected: true,
+        createdAt: serverTimestamp()
+      });
+    });
+
+    return missingAmount;
+  } catch (err) {
+    log(`  ❌ Failed to credit L${level} bonus: ${err.message}`, 'error');
+    return 0;
+  }
+}
+
+// 🔥 MAIN FUNCTION: Run Auto Checker
+window.runAutoChecker = async function() {
+  const btn = document.getElementById('runCheckerBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
+  
+  bonusesPaid = 0;
+  totalAmountPaid = 0;
+  document.getElementById('logContainer').innerHTML = '';
+  
+  log('🚀 Starting Auto Referral Bonus Checker...', 'info');
+  log('📊 Fetching all users...', 'info');
+
+  try {
+    // Load all users
+    const usersSnap = await getDocs(collection(db, 'users'));
+    allUsers = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    
+    document.getElementById('totalUsers').textContent = allUsers.length;
+    log(`✅ Found ${allUsers.length} users`, 'success');
+
+    let referralLinksFound = 0;
+    let totalProcessed = 0;
+
+    // Scan each user
+    for (let i = 0; i < allUsers.length; i++) {
+      const user = allUsers[i];
+      updateProgress(Math.round((i / allUsers.length) * 100));
+      
+      // Check if this user has upliners
+      const levels = [
+        { uid: user.referredBy, level: 1, label: 'L1 (10%)' },
+        { uid: user.level2Referrer, level: 2, label: 'L2 (3%)' },
+        { uid: user.level3Referrer, level: 3, label: 'L3 (1%)' }
+      ];
+
+      let hasReferralLink = false;
+      for (const lvl of levels) {
+        if (!lvl.uid) continue;
+        hasReferralLink = true;
+        referralLinksFound++;
+
+        log(`\n🔗 ${user.fullName || user.username} → ${lvl.label} → Upliner: ${lvl.uid}`, 'info');
+
+        // Get downline's total investment
+        const userInvested = await getUserInvested(user.id);
+        log(`  💰 Downline invested: ${fm(userInvested)}`, 'info');
+
+        if (userInvested <= 0) {
+          log(`  ⏭️ No investment yet - skip`, 'warning');
+          continue;
+        }
+
+        // Calculate expected earnings
+        const expectedEarnings = calculateExpectedEarnings(userInvested, REFERRAL_RATES[lvl.level]);
+        const alreadyEarned = await getExistingEarnings(lvl.uid, user.id);
+        
+        log(`  📊 Expected: ${fm(expectedEarnings)} | Already paid: ${fm(alreadyEarned)}`, 'info');
+
+        if (expectedEarnings > alreadyEarned) {
+          const missing = expectedEarnings - alreadyEarned;
+          log(`  ⚠️ MISSING: ${fm(missing)} - Crediting now...`, 'warning');
+          
+          const credited = await creditReferralBonus(
+            lvl.uid, user.id, user.fullName || user.username,
+            lvl.level, expectedEarnings, alreadyEarned
+          );
+
+          if (credited > 0) {
+            bonusesPaid++;
+            totalAmountPaid += credited;
+            log(`  ✅ CREDITED: ${fm(credited)} to upliner!`, 'success');
+          }
+        } else {
+          log(`  ✅ Already fully paid`, 'success');
+        }
+        totalProcessed++;
+      }
+
+      if (!hasReferralLink) {
+        // Skip users without referral links to speed up
+      }
+    }
+
+    updateProgress(100);
+    
+    // Update stats
+    document.getElementById('referralsFound').textContent = referralLinksFound;
+    document.getElementById('bonusesPaid').textContent = bonusesPaid;
+    document.getElementById('totalAmount').textContent = fm(totalAmountPaid);
+
+    log(`\n🎉 ========== AUTO-CHECK COMPLETE ==========`, 'success');
+    log(`📊 Referral links found: ${referralLinksFound}`, 'info');
+    log(`💰 Bonuses paid: ${bonusesPaid}`, 'success');
+    log(`💵 Total credited: ${fm(totalAmountPaid)}`, 'success');
+
+    if (bonusesPaid > 0) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Auto-Check Complete!',
+        html: `<p><strong>${bonusesPaid}</strong> missing referral bonuses found and credited!</p><p>Total: <strong>${fm(totalAmountPaid)}</strong></p>`,
+        confirmButtonColor: '#2563eb'
+      });
+    } else {
+      Swal.fire({
+        icon: 'info',
+        title: 'All Clear!',
+        text: 'No missing referral bonuses found. All upliners are properly credited.',
+        confirmButtonColor: '#2563eb'
+      });
+    }
+
+  } catch (err) {
+    log(`❌ CRITICAL ERROR: ${err.message}`, 'error');
+    Swal.fire({ icon: 'error', title: 'Error', text: err.message, confirmButtonColor: '#ef4444' });
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-play"></i> Start Auto-Check';
+    document.getElementById('fixAllBtn').disabled = false;
+  }
+};
+
+// 🔥 Fix All - Credits all missing bonuses at once
+window.fixAllReferrals = async function() {
+  const btn = document.getElementById('fixAllBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fixing...';
+  
+  const confirm = await Swal.fire({
+    title: 'Fix All Referrals?',
+    text: 'This will credit ALL missing referral bonuses across ALL users. Continue?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Fix All',
+    confirmButtonColor: '#16a34a'
+  });
+  
+  if (!confirm.isConfirmed) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-wrench"></i> Fix & Credit All';
+    return;
+  }
+
+  await window.runAutoChecker();
+  
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-wrench"></i> Fix & Credit All';
+};
+
+// Auto-run on page load (after 2 seconds)
+setTimeout(() => {
+  log('🟢 Auto-checker loaded. Press "Start Auto-Check" to scan for missing bonuses.', 'info');
+  log('📝 This tool checks all users and credits any unpaid referral earnings.', 'info');
+}, 500);
+
+// Expose functions globally
+window.runAutoChecker = runAutoChecker;
+window.fixAllReferrals = fixAllReferrals;
+</script>
+</body>
+</html>
