@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kinectwealth • Create Account & Earn ₦1,000 Bonus</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { min-height: 100vh; font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 50%, #f5f7ff 100%); display: flex; align-items: center; justify-content: center; padding: 1.5rem; position: relative; overflow-x: hidden; }
+    .bg-circle { position: fixed; border-radius: 50%; z-index: 0; opacity: 0.08; }
+    .bg-circle-1 { width: 600px; height: 600px; top: -200px; right: -200px; background: #2563eb; animation: floatSlow 25s infinite alternate; }
+    .bg-circle-2 { width: 500px; height: 500px; bottom: -150px; left: -150px; background: #3b82f6; animation: floatSlow 20s infinite alternate-reverse; }
+    .bg-circle-3 { width: 300px; height: 300px; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #60a5fa; animation: pulse 8s infinite; }
+    @keyframes floatSlow { 0%{transform:translate(0,0)scale(1)}100%{transform:translate(60px,40px)scale(1.15)} }
+    @keyframes pulse { 0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.08}50%{transform:translate(-50%,-50%)scale(1.2);opacity:.15} }
+    .register-card { position:relative; z-index:10; width:100%; max-width:580px; background:#ffffff; border-radius:24px; box-shadow:0 20px 60px rgba(37,99,235,.12),0 4px 16px rgba(0,0,0,.04); overflow:hidden; animation:cardEntry .6s ease-out; }
+    @keyframes cardEntry { from{opacity:0;transform:translateY(30px)scale(.98)}to{opacity:1;transform:translateY(0)scale(1)} }
+    .card-header-section { background:linear-gradient(135deg,#1e40af 0%,#2563eb 40%,#3b82f6 100%); padding:2.5rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+    .card-header-section::before { content:''; position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:rgba(255,255,255,.05); border-radius:50%; }
+    .card-header-section::after { content:''; position:absolute; bottom:-30px; left:-30px; width:150px; height:150px; background:rgba(255,255,255,.03); border-radius:50%; }
+    .logo-icon { width:70px; height:70px; background:rgba(255,255,255,.15); backdrop-filter:blur(10px); border:2px solid rgba(255,255,255,.2); border-radius:20px; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem; font-size:2rem; color:#ffffff; position:relative; z-index:1; }
+    .card-header-section h1 { font-family:'Outfit',sans-serif; font-size:2rem; font-weight:700; color:#ffffff; margin-bottom:.5rem; position:relative; z-index:1; }
+    .card-header-section .header-subtitle { color:rgba(255,255,255,.85); font-size:.9rem; font-weight:400; position:relative; z-index:1; }
+    .bonus-badge { display:inline-flex; align-items:center; gap:.6rem; background:rgba(255,255,255,.2); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.25); border-radius:50px; padding:.6rem 1.4rem; margin-top:1.2rem; position:relative; z-index:1; }
+    .bonus-badge .badge-icon { font-size:1.3rem; }
+    .bonus-badge span { color:#ffffff; font-weight:600; font-size:.9rem; }
+    .bonus-badge span strong { font-size:1.1rem; font-weight:800; }
+    .card-form-section { padding:2rem 2rem 2.5rem; }
+    .back-link { display:inline-flex; align-items:center; gap:.5rem; color:#64748b; text-decoration:none; font-size:.85rem; margin-bottom:1.5rem; font-weight:500; transition:color .2s; }
+    .back-link:hover { color:#2563eb; }
+    .steps-indicator { display:flex; align-items:center; justify-content:center; gap:.4rem; margin-bottom:2rem; }
+    .step-dot { width:8px; height:8px; background:#e2e8f0; border-radius:50%; transition:all .4s; }
+    .step-dot.active { width:28px; border-radius:10px; background:linear-gradient(90deg,#2563eb,#3b82f6); }
+    .form-row { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-bottom:1rem; }
+    .form-field { margin-bottom:1.2rem; }
+    .form-field.full { grid-column:span 2; }
+    .form-field label { display:block; margin-bottom:.4rem; color:#334155; font-weight:600; font-size:.83rem; letter-spacing:.01em; }
+    .label-optional { color:#94a3b8; font-weight:400; font-size:.75rem; margin-left:.3rem; }
+    .input-group { position:relative; }
+    .input-group .field-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:#2563eb; font-size:.9rem; z-index:1; opacity:.6; transition:opacity .2s; }
+    .input-group input { width:100%; padding:.85rem 1rem .85rem 2.7rem; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; color:#1e293b; font-size:.9rem; font-family:'Inter',sans-serif; transition:all .3s; outline:none; }
+    .input-group input:focus { border-color:#2563eb; background:#ffffff; box-shadow:0 0 0 4px rgba(37,99,235,.08); }
+    .input-group input:focus~.field-icon { opacity:1; }
+    .input-group input::placeholder { color:#94a3b8; font-weight:400; }
+    .input-group input.input-error { border-color:#ef4444; background:#fef2f2; }
+    .input-group input.input-valid { border-color:#22c55e; background:#f0fdf4; }
+    .username-field input { font-family:'Outfit',monospace; letter-spacing:.5px; }
+    .field-feedback { font-size:.75rem; margin-top:.4rem; display:none; align-items:center; gap:.35rem; font-weight:500; }
+    .field-feedback.visible { display:flex; }
+    .field-feedback.error { color:#ef4444; }
+    .field-feedback.success { color:#22c55e; }
+    .field-feedback.checking { color:#f59e0b; }
+    .ref-verified-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; background:rgba(34,197,94,.1); border-radius:20px; color:#22c55e; font-size:12px; font-weight:700; position:absolute; right:12px; top:50%; transform:translateY(-50%); }
+    .strength-meter { margin-top:.5rem; height:5px; background:#f1f5f9; border-radius:10px; overflow:hidden; }
+    .strength-fill { height:100%; width:0%; transition:all .4s ease; border-radius:10px; }
+    .strength-weak { width:33%; background:#ef4444; }
+    .strength-fair { width:50%; background:#f59e0b; }
+    .strength-good { width:75%; background:#3b82f6; }
+    .strength-strong { width:100%; background:#22c55e; }
+    .password-tip { font-size:.74rem; color:#64748b; margin-top:.3rem; display:flex; align-items:center; gap:.3rem; }
+    .terms-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:1rem 1.2rem; margin:1.5rem 0; }
+    .terms-label { display:flex; align-items:flex-start; gap:.8rem; color:#475569; font-size:.84rem; cursor:pointer; line-height:1.5; }
+    .terms-label input[type="checkbox"] { width:18px; height:18px; accent-color:#2563eb; border-radius:4px; margin-top:1px; flex-shrink:0; cursor:pointer; }
+    .terms-link { color:#2563eb; text-decoration:none; font-weight:600; }
+    .terms-link:hover { text-decoration:underline; }
+    .submit-btn { width:100%; padding:.95rem; background:linear-gradient(135deg,#1e40af,#2563eb); border:none; border-radius:14px; color:#ffffff; font-size:1rem; font-weight:700; cursor:pointer; transition:all .3s; font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; gap:.6rem; box-shadow:0 8px 24px rgba(37,99,235,.3); letter-spacing:.02em; }
+    .submit-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 14px 32px rgba(37,99,235,.4); background:linear-gradient(135deg,#1e3a8a,#1d4ed8); }
+    .submit-btn:disabled { opacity:.6; cursor:not-allowed; }
+    .login-redirect { text-align:center; margin-top:1.8rem; padding-top:1.5rem; border-top:2px solid #f1f5f9; color:#64748b; font-size:.85rem; }
+    .login-redirect a { color:#2563eb; text-decoration:none; font-weight:700; margin-left:.3rem; }
+    .login-redirect a:hover { text-decoration:underline; }
+    .app-toast { position:fixed; top:24px; left:24px; z-index:10000; background:#ffffff; border-radius:14px; padding:1rem 1.4rem; box-shadow:0 16px 40px rgba(0,0,0,.12); display:flex; align-items:center; gap:1rem; animation:slideToastIn .35s ease-out; border-left:4px solid #2563eb; min-width:300px; max-width:450px; }
+    .app-toast.success { border-left-color:#22c55e; }
+    .app-toast.error { border-left-color:#ef4444; }
+    .app-toast.warning { border-left-color:#f59e0b; }
+    @keyframes slideToastIn { from{opacity:0;transform:translateX(-120%)}to{opacity:1;transform:translateX(0)} }
+    .toast-icon-wrap { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+    .toast-icon-wrap.success { background:#f0fdf4; color:#22c55e; }
+    .toast-icon-wrap.error { background:#fef2f2; color:#ef4444; }
+    .toast-icon-wrap.warning { background:#fffbeb; color:#f59e0b; }
+    .toast-text h4 { font-size:.9rem; font-weight:700; color:#1e293b; margin-bottom:.15rem; }
+    .toast-text p { font-size:.78rem; color:#64748b; line-height:1.4; }
+    @media (max-width:600px) { .register-card { border-radius:20px; } .card-header-section { padding:2rem 1.5rem 1.5rem; } .card-form-section { padding:1.5rem 1.5rem 2rem; } .form-row { grid-template-columns:1fr; } .form-field.full { grid-column:span 1; } .card-header-section h1 { font-size:1.6rem; } .logo-icon { width:56px; height:56px; font-size:1.5rem; } }
+  </style>
+</head>
+<body>
+  <div class="bg-circle bg-circle-1"></div>
+  <div class="bg-circle bg-circle-2"></div>
+  <div class="bg-circle bg-circle-3"></div>
+
+  <div class="register-card">
+    <div class="card-header-section">
+      <div class="logo-icon">⚡</div>
+      <h1>Join Kinectwealth</h1>
+      <p class="header-subtitle">Start your wealth journey today</p>
+      <div class="bonus-badge"><span class="badge-icon">🎁</span><span>Get <strong>₦1,000</strong> Welcome Bonus</span></div>
+    </div>
+
+    <div class="card-form-section">
+      <a href="login.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to sign in</a>
+      <div class="steps-indicator"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+
+      <form id="registerForm">
+        <div class="form-row">
+          <!-- Full Name -->
+          <div class="form-field full">
+            <label>Full Name</label>
+            <div class="input-group"><i class="fas fa-user field-icon"></i><input type="text" id="name" placeholder="Enter your full name" required minlength="2"></div>
+          </div>
+          <!-- Username -->
+          <div class="form-field full">
+            <label>Username <span class="label-optional">(your referral ID)</span></label>
+            <div class="input-group username-field"><i class="fas fa-at field-icon"></i><input type="text" id="username" placeholder="johndoe123" required minlength="3" maxlength="20" pattern="[a-z0-9]+"></div>
+            <div class="field-feedback" id="usernameFeedback"></div>
+          </div>
+          <!-- Email -->
+          <div class="form-field full">
+            <label>Email Address</label>
+            <div class="input-group"><i class="fas fa-envelope field-icon"></i><input type="email" id="email" placeholder="john@example.com" required></div>
+          </div>
+          <!-- Phone -->
+          <div class="form-field full">
+            <label>Phone Number <span class="label-optional">(optional)</span></label>
+            <div class="input-group"><i class="fas fa-phone field-icon"></i><input type="tel" id="phone" placeholder="08012345678"></div>
+          </div>
+          <!-- Password -->
+          <div class="form-field">
+            <label>Password</label>
+            <div class="input-group"><i class="fas fa-lock field-icon"></i><input type="password" id="password" placeholder="Create password" required minlength="8"></div>
+            <div class="strength-meter"><div class="strength-fill" id="strengthBar"></div></div>
+            <div class="password-tip" id="passwordHint"><i class="fas fa-info-circle"></i> At least 8 characters</div>
+          </div>
+          <!-- Confirm Password -->
+          <div class="form-field">
+            <label>Confirm Password</label>
+            <div class="input-group"><i class="fas fa-shield-alt field-icon"></i><input type="password" id="confirmPassword" placeholder="Confirm password" required></div>
+          </div>
+          <!-- Referral Code -->
+          <div class="form-field full">
+            <label>Referral Code <span class="label-optional">(optional)</span></label>
+            <div class="input-group username-field" style="position:relative;"><i class="fas fa-users field-icon"></i><input type="text" id="referral" placeholder="Enter referrer's username"><span class="ref-verified-tag" id="refVerified" style="display:none;"><i class="fas fa-check-circle"></i> Verified</span></div>
+            <div class="field-feedback" id="referralFeedback"></div>
+          </div>
+        </div>
+
+        <div class="terms-box">
+          <label class="terms-label"><input type="checkbox" id="terms" required><span>I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a></span></label>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Create Free Account <i class="fas fa-arrow-right"></i></button>
+        <div class="login-redirect">Already have an account? <a href="login.html">Sign in to Kinectwealth</a></div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where, serverTimestamp, increment, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+      authDomain: "realkinetic-72248.firebaseapp.com",
+      projectId: "realkinetic-72248",
+      storageBucket: "realkinetic-72248.firebasestorage.app",
+      messagingSenderId: "307505218118",
+      appId: "1:307505218118:web:010dc757c598f4b87d0047"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const WELCOME_BONUS = 1000;
+    const REFERRAL_RATES = { 1: 10, 2: 3, 3: 1 };
+
+    // Pre-fill referral from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParam = urlParams.get('ref');
+    if (refParam) { document.getElementById('referral').value = refParam; verifyReferralCode(refParam); }
+
+    function showToast(title, message, type = 'success') {
+      const existing = document.querySelector('.app-toast');
+      if (existing) existing.remove();
+      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-info-circle' };
+      const toast = document.createElement('div');
+      toast.className = `app-toast ${type}`;
+      toast.innerHTML = `<div class="toast-icon-wrap ${type}"><i class="fas ${icons[type]}"></i></div><div class="toast-text"><h4>${title}</h4><p>${message}</p></div>`;
+      document.body.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+    }
+
+    async function findUserByUsername(username) {
+      const q = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
+      const snap = await getDocs(q);
+      return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() };
+    }
+
+    let verifiedReferrerId = null;
+    let checkTimeout;
+
+    // Username live check
+    document.getElementById('username').addEventListener('input', (e) => {
+      const val = e.target.value.toLowerCase().trim();
+      const fb = document.getElementById('usernameFeedback');
+      clearTimeout(checkTimeout);
+      if (val.length < 3) { fb.className = 'field-feedback'; e.target.classList.remove('input-valid', 'input-error'); return; }
+      if (!/^[a-z0-9]+$/.test(val)) { fb.innerHTML = '<i class="fas fa-times-circle"></i> Only letters and numbers allowed'; fb.className = 'field-feedback visible error'; e.target.classList.add('input-error'); e.target.classList.remove('input-valid'); return; }
+      fb.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking availability...';
+      fb.className = 'field-feedback visible checking';
+      checkTimeout = setTimeout(async () => {
+        try {
+          const exists = await findUserByUsername(val);
+          if (exists) { fb.innerHTML = '<i class="fas fa-times-circle"></i> Username already taken'; fb.className = 'field-feedback visible error'; e.target.classList.add('input-error'); e.target.classList.remove('input-valid'); }
+          else { fb.innerHTML = '<i class="fas fa-check-circle"></i> Username available!'; fb.className = 'field-feedback visible success'; e.target.classList.add('input-valid'); e.target.classList.remove('input-error'); }
+        } catch (_) { fb.className = 'field-feedback'; }
+      }, 600);
+    });
+
+    // Referral code live check
+    document.getElementById('referral').addEventListener('input', (e) => {
+      const code = e.target.value.toLowerCase().trim();
+      const fb = document.getElementById('referralFeedback');
+      document.getElementById('refVerified').style.display = 'none';
+      verifiedReferrerId = null;
+      clearTimeout(checkTimeout);
+      if (!code || code.length < 3) { fb.className = 'field-feedback'; e.target.classList.remove('input-valid', 'input-error'); return; }
+      fb.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+      fb.className = 'field-feedback visible checking';
+      checkTimeout = setTimeout(async () => {
+        try {
+          const ref = await findUserByUsername(code);
+          if (ref) {
+            verifiedReferrerId = ref.id;
+            fb.innerHTML = `<i class="fas fa-check-circle"></i> Valid! Referred by ${ref.fullName || ref.username}`;
+            fb.className = 'field-feedback visible success';
+            e.target.classList.add('input-valid'); e.target.classList.remove('input-error');
+            document.getElementById('refVerified').style.display = 'inline-flex';
+          } else {
+            fb.innerHTML = '<i class="fas fa-times-circle"></i> Invalid referral code';
+            fb.className = 'field-feedback visible error';
+            e.target.classList.add('input-error'); e.target.classList.remove('input-valid');
+          }
+        } catch (_) { fb.className = 'field-feedback'; }
+      }, 600);
+    });
+
+    // Verify referral code from URL
+    async function verifyReferralCode(code) {
+      const ref = await findUserByUsername(code);
+      if (ref) {
+        verifiedReferrerId = ref.id;
+        document.getElementById('referralFeedback').innerHTML = `<i class="fas fa-check-circle"></i> Valid! Referred by ${ref.fullName || ref.username}`;
+        document.getElementById('referralFeedback').className = 'field-feedback visible success';
+        document.getElementById('referral').classList.add('input-valid');
+        document.getElementById('refVerified').style.display = 'inline-flex';
+      }
+    }
+
+    // Password strength
+    document.getElementById('password').addEventListener('input', (e) => {
+      const pw = e.target.value, bar = document.getElementById('strengthBar'), hint = document.getElementById('passwordHint');
+      let score = 0;
+      if (pw.length >= 8) score++; if (pw.match(/[a-z]/) && pw.match(/[A-Z]/)) score++; if (pw.match(/[0-9]/)) score++; if (pw.match(/[^a-zA-Z0-9]/)) score++;
+      bar.className = 'strength-fill';
+      if (score <= 1) { bar.classList.add('strength-weak'); hint.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Weak password'; }
+      else if (score === 2) { bar.classList.add('strength-fair'); hint.innerHTML = '<i class="fas fa-chart-line"></i> Could be stronger'; }
+      else if (score === 3) { bar.classList.add('strength-good'); hint.innerHTML = '<i class="fas fa-check-circle"></i> Good password'; }
+      else { bar.classList.add('strength-strong'); hint.innerHTML = '<i class="fas fa-shield-alt"></i> Strong password!'; }
+    });
+
+    // Password match
+    document.getElementById('confirmPassword').addEventListener('input', (e) => {
+      const match = document.getElementById('password').value === e.target.value;
+      e.target.classList.toggle('input-error', !match && e.target.value.length > 0);
+      e.target.classList.toggle('input-valid', match && e.target.value.length > 0);
+    });
+
+    // 🔥 FORM SUBMIT - VESTRO-STYLE DATA COLLECTION
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      const name = document.getElementById('name').value.trim();
+      const username = document.getElementById('username').value.trim().toLowerCase();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const referralCode = document.getElementById('referral').value.trim().toLowerCase();
+      const termsChecked = document.getElementById('terms').checked;
+
+      if (username.length < 3) return showToast('Invalid Username', 'Username must be at least 3 characters', 'error');
+      if (!/^[a-z0-9]+$/.test(username)) return showToast('Invalid Username', 'Only lowercase letters and numbers allowed', 'error');
+      if (password.length < 8) return showToast('Weak Password', 'Password must be at least 8 characters', 'error');
+      if (password !== confirmPassword) return showToast('Password Mismatch', 'Passwords do not match', 'error');
+      if (!termsChecked) return showToast('Terms Required', 'Please accept the terms and conditions', 'warning');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Creating Account <i class="fas fa-spinner fa-spin"></i>';
+
+      try {
+        // Check username
+        const usernameExists = await findUserByUsername(username);
+        if (usernameExists) { submitBtn.disabled = false; submitBtn.innerHTML = 'Create Free Account <i class="fas fa-arrow-right"></i>'; return showToast('Username Taken', 'Please choose a different username', 'error'); }
+
+        // Build referral chain (VESTRO-style)
+        let finalReferrer = verifiedReferrerId;
+        if (!finalReferrer && referralCode) {
+          const refData = await findUserByUsername(referralCode);
+          if (refData) finalReferrer = refData.id;
+        }
+
+        let level1Referrer = null, level2Referrer = null, level3Referrer = null;
+        if (finalReferrer) {
+          level1Referrer = finalReferrer;
+          const l1Doc = await getDoc(doc(db, 'users', finalReferrer));
+          if (l1Doc.exists()) {
+            const l1Data = l1Doc.data();
+            if (l1Data.referredBy) {
+              level2Referrer = l1Data.referredBy;
+              const l2Doc = await getDoc(doc(db, 'users', l1Data.referredBy));
+              if (l2Doc.exists() && l2Doc.data().referredBy) {
+                level3Referrer = l2Doc.data().referredBy;
+              }
+            }
+          }
+        }
+
+        // Create Firebase Auth
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        const newUserId = credential.user.uid;
+        await updateProfile(credential.user, { displayName: name });
+
+        // 🔥 VESTRO-STYLE USER DOCUMENT
+        await setDoc(doc(db, 'users', newUserId), {
+          uid: newUserId,
+          fullName: name,
+          username: username,
+          email: email,
+          phone: phone || '',
+          role: 'user',
+          status: 'active',
+          referredBy: level1Referrer,
+          level2Referrer: level2Referrer,
+          level3Referrer: level3Referrer,
+          wallet: WELCOME_BONUS,
+          totalDeposits: 0,
+          totalWithdrawals: 0,
+          totalEarnings: WELCOME_BONUS,
+          totalRefEarnings: 0,
+          activeInvestments: 0,
+          referralCount: 0,
+          level1Count: 0,
+          level2Count: 0,
+          level3Count: 0,
+          emailVerified: false,
+          isAdmin: false,
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+
+        // Welcome bonus transaction
+        try {
+          await setDoc(doc(collection(db, `users/${newUserId}/transactions`)), {
+            type: 'welcome_bonus', amount: WELCOME_BONUS, status: 'completed',
+            description: '🎁 Welcome Bonus — Thank you for joining Kinectwealth!',
+            createdAt: serverTimestamp()
+          });
+        } catch (_) {}
+
+        // 🔥 VESTRO-STYLE REFERRAL CHAIN BUILDING (with count tracking)
+        if (level1Referrer) {
+          const batch = writeBatch(db);
+          let currentUpliner = level1Referrer;
+          const levels = [
+            { level: 1, rate: REFERRAL_RATES[1] },
+            { level: 2, rate: REFERRAL_RATES[2] },
+            { level: 3, rate: REFERRAL_RATES[3] }
+          ];
+
+          for (const lvl of levels) {
+            if (!currentUpliner) break;
+            
+            // Create referral record in upliner's subcollection
+            const refDocRef = doc(db, `users/${currentUpliner}/referrals`, newUserId);
+            batch.set(refDocRef, {
+              referredUserId: newUserId,
+              referredUserName: name,
+              referredUserEmail: email,
+              referredUsername: username,
+              level: lvl.level,
+              commission: lvl.rate,
+              referredAt: serverTimestamp(),
+              totalEarned: 0,
+              lastInvestment: null
+            });
+
+            // Increment counts on upliner's document
+            const uplinerRef = doc(db, 'users', currentUpliner);
+            batch.update(uplinerRef, {
+              referralCount: increment(lvl.level === 1 ? 1 : 0),
+              [`level${lvl.level}Count`]: increment(1)
+            });
+
+            // Move to next upliner
+            try {
+              const uplinerDoc = await getDoc(doc(db, 'users', currentUpliner));
+              if (uplinerDoc.exists()) {
+                currentUpliner = lvl.level === 1 ? uplinerDoc.data().referredBy : 
+                                lvl.level === 2 ? uplinerDoc.data().level2Referrer : null;
+              } else { break; }
+            } catch { break; }
+          }
+
+          await batch.commit();
+          console.log('✅ Referral chain built with count tracking');
+        }
+
+        showToast('🎉 Welcome to Kinectwealth!', `Account created! ₦${WELCOME_BONUS.toLocaleString()} welcome bonus added to your wallet.`, 'success');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+
+      } catch (error) {
+        console.error('Registration error:', error);
+        let message = 'Registration failed. Please try again.';
+        if (error.code === 'auth/email-already-in-use') message = 'This email is already registered. Please sign in.';
+        else if (error.code === 'auth/invalid-email') message = 'Invalid email address format.';
+        else if (error.code === 'auth/weak-password') message = 'Password is too weak. Use at least 8 characters.';
+        showToast('Registration Failed', message, 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Create Free Account <i class="fas fa-arrow-right"></i>';
+      }
+    });
+  </script>
+</body>
+</html>
