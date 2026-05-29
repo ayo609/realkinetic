@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>Kinectwealth · Team & Referrals</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --primary: #2563eb; --teal: #16a34a; --amber: #f59e0b;
+  --green: #16a34a; --purple: #8b5cf6; --pink: #ec4899;
+  --bg: #f8fafc; --card: #ffffff; --card2: #f1f5f9;
+  --border: #e2e8f0; --text: #0f172a; --sub: #64748b; --muted: #94a3b8;
+  --l1: #2563eb; --l2: #3b82f6; --l3: #60a5fa;
+  --nav-h: 60px; --bot-h: 70px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); padding-bottom:calc(var(--bot-h) + 12px); -webkit-font-smoothing:antialiased; min-height:100vh; }
+
+/* TOPBAR */
+.topbar { position:sticky; top:0; z-index:900; height:var(--nav-h); background:#fff; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 16px; box-shadow:0 2px 8px rgba(0,0,0,0.03); }
+.topbar-title { font-family:'Outfit',sans-serif; font-size:17px; font-weight:800; color:var(--text); }
+.back-btn { width:36px; height:36px; border-radius:10px; background:var(--card2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--sub); text-decoration:none; font-size:14px; }
+.avatar-sm { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#1e40af,#2563eb); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; }
+
+/* HERO */
+.hero { padding:16px; }
+
+/* REFERRAL LINK CARD */
+.ref-card { background:linear-gradient(135deg,#1e40af,#2563eb); border-radius:18px; padding:16px 18px; margin-bottom:16px; box-shadow:0 8px 30px rgba(37,99,235,.3); }
+.ref-label { font-size:11px; font-weight:700; color:rgba(255,255,255,.75); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.ref-row { display:flex; align-items:center; gap:10px; }
+.ref-link-box { flex:1; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:10px 14px; font-size:12px; font-weight:600; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:monospace; }
+.ref-copy-btn { padding:10px 18px; background:#fff; color:#2563eb; border:none; border-radius:12px; font-weight:800; font-size:13px; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px; transition:all .2s; font-family:'Inter',sans-serif; }
+.ref-copy-btn:active { transform:scale(.95); }
+.share-row { display:flex; gap:8px; margin-top:12px; }
+.share-btn { flex:1; padding:10px; border-radius:12px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:#fff; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .2s; font-family:'Inter',sans-serif; }
+.share-btn:active { background:rgba(255,255,255,.2); }
+
+/* SECTION TITLES */
+.section-header { padding:0 0 12px; display:flex; align-items:center; justify-content:space-between; }
+.section-title { font-family:'Outfit',sans-serif; font-size:15px; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px; }
+
+/* STATS CARDS */
+.stats-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.stat-card { background:var(--card); border-radius:14px; padding:14px; border:1px solid var(--border); }
+.stat-card.full { grid-column:1/-1; }
+.stat-card-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; margin-bottom:8px; }
+.icon-teal { background:rgba(22,163,74,.12); color:var(--teal); }
+.icon-green { background:rgba(22,163,74,.12); color:var(--green); }
+.icon-purple { background:rgba(139,92,246,.12); color:var(--purple); }
+.stat-card-value { font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; color:var(--text); margin-bottom:2px; }
+.stat-card-label { font-size:11px; color:var(--sub); font-weight:600; }
+
+/* LEVEL BREAKDOWN */
+.level-breakdown { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+.level-card { background:var(--card); border-radius:14px; padding:14px; border:1px solid var(--border); text-align:center; cursor:pointer; transition:all .2s; }
+.level-card:hover { border-color:#bfdbfe; }
+.level-card.l1 { border-left:3px solid var(--l1); }
+.level-card.l2 { border-left:3px solid var(--l2); }
+.level-card.l3 { border-left:3px solid var(--l3); }
+.level-card-num { font-family:'Outfit',sans-serif; font-size:28px; font-weight:800; margin-bottom:2px; }
+.level-card-num.l1-c { color:var(--l1); }
+.level-card-num.l2-c { color:var(--l2); }
+.level-card-num.l3-c { color:var(--l3); }
+.level-card-label { font-size:10px; font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+.level-card-rate { font-size:11px; font-weight:800; }
+.level-card-rate.l1-r { color:var(--l1); }
+.level-card-rate.l2-r { color:var(--l2); }
+.level-card-rate.l3-r { color:var(--l3); }
+
+/* TEAM LIST */
+.team-filter-bar { display:flex; gap:6px; margin-bottom:12px; }
+.team-filter-btn { flex:1; padding:10px 8px; border-radius:10px; font-family:'Outfit',sans-serif; font-size:11px; font-weight:700; border:1px solid var(--border); background:var(--card); color:var(--sub); cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:5px; }
+.team-filter-btn.active-l1 { background:#eff6ff; border-color:var(--l1); color:var(--l1); }
+.team-filter-btn.active-l2 { background:#eff6ff; border-color:var(--l2); color:var(--l2); }
+.team-filter-btn.active-l3 { background:#eff6ff; border-color:var(--l3); color:var(--l3); }
+.team-filter-badge { padding:2px 8px; border-radius:20px; font-size:10px; }
+.badge-l1 { background:rgba(37,99,235,.15); color:var(--l1); }
+.badge-l2 { background:rgba(59,130,246,.15); color:var(--l2); }
+.badge-l3 { background:rgba(96,165,250,.15); color:var(--l3); }
+
+.team-search-wrap { position:relative; margin-bottom:12px; }
+.team-search { width:100%; padding:12px 16px 12px 42px; background:var(--card); border:1px solid var(--border); border-radius:14px; color:var(--text); font-family:'Inter',sans-serif; font-size:13px; outline:none; }
+.team-search::placeholder { color:var(--muted); }
+.team-search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px; }
+
+/* MEMBER CARDS */
+.member-card { background:var(--card); border-radius:14px; padding:14px 16px; margin-bottom:10px; border:1px solid var(--border); display:flex; align-items:center; gap:12px; animation:slideIn .3s ease both; }
+@keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.member-avatar { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; color:#fff; flex-shrink:0; }
+.av-l1 { background:linear-gradient(135deg,#1e40af,#2563eb); }
+.av-l2 { background:linear-gradient(135deg,#2563eb,#3b82f6); }
+.av-l3 { background:linear-gradient(135deg,#3b82f6,#60a5fa); }
+.member-body { flex:1; min-width:0; }
+.member-name { font-family:'Outfit',sans-serif; font-weight:800; font-size:14px; color:var(--text); margin-bottom:3px; display:flex; align-items:center; gap:6px; }
+.member-email { font-size:11px; color:var(--sub); margin-bottom:6px; }
+.member-tags { display:flex; gap:5px; flex-wrap:wrap; }
+.member-tag { padding:3px 8px; border-radius:20px; font-size:10px; font-weight:700; }
+.tag-plan { background:rgba(37,99,235,.08); color:var(--primary); }
+.tag-date { background:var(--card2); color:var(--sub); }
+.tag-active { background:rgba(22,163,74,.1); color:var(--green); }
+.tag-inactive { background:rgba(239,68,68,.1); color:#ef4444; }
+.member-right { text-align:right; flex-shrink:0; }
+.member-invested { font-size:10px; color:var(--sub); margin-bottom:2px; }
+.member-invested b { color:var(--text); }
+.member-bonus { font-family:'Outfit',sans-serif; font-size:15px; font-weight:800; color:var(--green); }
+.member-rate { font-size:10px; color:var(--sub); margin-top:1px; }
+
+/* EMPTY STATE */
+.empty-state { text-align:center; padding:50px 20px; }
+.empty-state i { font-size:44px; display:block; margin-bottom:14px; opacity:.25; color:var(--muted); }
+.empty-state-title { font-family:'Outfit',sans-serif; font-size:15px; font-weight:700; color:var(--sub); margin-bottom:6px; }
+.empty-state-sub { font-size:12px; color:var(--muted); }
+
+/* BOTTOM NAV */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; height:var(--bot-h); background:#fff; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-around; padding:0 10px; z-index:800; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--muted); text-decoration:none; font-size:10px; font-weight:600; padding:8px 10px; }
+.nav-item i { font-size:20px; }
+.nav-item.active { color:var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+  <div class="topbar-title">Team & Referrals</div>
+  <div class="avatar-sm" id="avatarBox">?</div>
+</div>
+
+<div class="hero">
+  <!-- REFERRAL LINK -->
+  <div class="ref-card">
+    <div class="ref-label"><i class="fas fa-link"></i> Your Referral Link</div>
+    <div class="ref-row">
+      <div class="ref-link-box" id="refLinkDisplay">Loading...</div>
+      <button class="ref-copy-btn" onclick="copyLink()"><i class="fas fa-copy"></i> Copy</button>
+    </div>
+    <div class="share-row">
+      <button class="share-btn" onclick="shareWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+      <button class="share-btn" onclick="shareTelegram()"><i class="fab fa-telegram"></i> Telegram</button>
+      <button class="share-btn" onclick="shareMore()"><i class="fas fa-share-alt"></i> More</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="section-header"><div class="section-title"><i class="fas fa-chart-pie" style="color:var(--teal);"></i> Team Overview</div></div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-card-icon icon-teal"><i class="fas fa-users"></i></div>
+      <div class="stat-card-value" id="totalTeamSize">0</div>
+      <div class="stat-card-label">Total Team Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon icon-green"><i class="fas fa-user-check"></i></div>
+      <div class="stat-card-value" id="activeMembers">0</div>
+      <div class="stat-card-label">Active Members (₦10k+)</div>
+    </div>
+    <div class="stat-card full">
+      <div class="stat-card-icon icon-purple"><i class="fas fa-coins"></i></div>
+      <div class="stat-card-value" id="teamRecharge">₦0</div>
+      <div class="stat-card-label">Total Team Investment</div>
+    </div>
+  </div>
+
+  <!-- LEVEL BREAKDOWN -->
+  <div class="section-header"><div class="section-title"><i class="fas fa-layer-group" style="color:var(--purple);"></i> Level Breakdown</div></div>
+  <div class="level-breakdown">
+    <div class="level-card l1" onclick="switchTeamLevel(1)">
+      <div class="level-card-num l1-c" id="l1Count">0</div>
+      <div class="level-card-label">Level 1</div>
+      <div class="level-card-rate l1-r">10% Bonus</div>
+    </div>
+    <div class="level-card l2" onclick="switchTeamLevel(2)">
+      <div class="level-card-num l2-c" id="l2Count">0</div>
+      <div class="level-card-label">Level 2</div>
+      <div class="level-card-rate l2-r">3% Bonus</div>
+    </div>
+    <div class="level-card l3" onclick="switchTeamLevel(3)">
+      <div class="level-card-num l3-c" id="l3Count">0</div>
+      <div class="level-card-label">Level 3</div>
+      <div class="level-card-rate l3-r">1% Bonus</div>
+    </div>
+  </div>
+
+  <!-- TEAM LIST -->
+  <div class="section-header"><div class="section-title"><i class="fas fa-list" style="color:var(--amber);"></i> My Team</div></div>
+  <div class="team-filter-bar">
+    <button class="team-filter-btn active-l1" id="tltab1" onclick="switchTeamLevel(1)">
+      <i class="fas fa-circle" style="font-size:7px;color:var(--l1);"></i> Level 1
+      <span class="team-filter-badge badge-l1" id="tl1badge">0</span>
+    </button>
+    <button class="team-filter-btn" id="tltab2" onclick="switchTeamLevel(2)">
+      <i class="fas fa-circle" style="font-size:7px;color:var(--l2);"></i> Level 2
+      <span class="team-filter-badge badge-l2" id="tl2badge">0</span>
+    </button>
+    <button class="team-filter-btn" id="tltab3" onclick="switchTeamLevel(3)">
+      <i class="fas fa-circle" style="font-size:7px;color:var(--l3);"></i> Level 3
+      <span class="team-filter-badge badge-l3" id="tl3badge">0</span>
+    </button>
+  </div>
+  <div class="team-search-wrap">
+    <i class="fas fa-search team-search-icon"></i>
+    <input type="text" class="team-search" id="teamSearchInput" placeholder="Search by name or email..." oninput="filterTeam()"/>
+  </div>
+  <div id="memberList"><div class="empty-state"><i class="fas fa-circle-notch fa-spin" style="font-size:28px;opacity:.5;"></i><div class="empty-state-sub">Loading your team...</div></div></div>
+</div>
+
+<div class="bottom-nav">
+  <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+  <a href="referral.html" class="nav-item active"><i class="fas fa-users"></i><span>Team</span></a>
+  <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+  authDomain: "realkinetic-72248.firebaseapp.com",
+  projectId: "realkinetic-72248",
+  storageBucket: "realkinetic-72248.firebasestorage.app",
+  messagingSenderId: "307505218118",
+  appId: "1:307505218118:web:010dc757c598f4b87d0047"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const RATES = { 1:0.10, 2:0.03, 3:0.01 };
+const MIN_ACTIVE = 10000;
+
+let currentUserId = null, myReferralCode = '', myReferralLink = '';
+let allDownlines = [], currentTeamLevel = 1;
+let allUsersMap = new Map();
+
+const fm = n => Number(n||0).toLocaleString('en-NG');
+
+/* ═══ BUILD TEAM (Kinectwealth data structure) ═══ */
+function buildTeam(allUsers) {
+  const l1 = [], l2 = [], l3 = [];
+  
+  // Level 1: users where referredBy === currentUserId
+  for (const user of allUsers) {
+    if (user.referredBy === currentUserId) l1.push(user);
+  }
+  
+  // Level 2: users where level2Referrer === currentUserId
+  for (const user of allUsers) {
+    if (user.level2Referrer === currentUserId) l2.push(user);
+  }
+  
+  // Level 3: users where level3Referrer === currentUserId
+  for (const user of allUsers) {
+    if (user.level3Referrer === currentUserId) l3.push(user);
+  }
+  
+  console.log('📊 Team built: L1='+l1.length, 'L2='+l2.length, 'L3='+l3.length);
+  return { l1, l2, l3 };
+}
+
+/* ═══ GET USER INVESTED ═══ */
+async function getUserInvested(userId) {
+  try {
+    const snap = await db.collection(`users/${userId}/activePlans`).get();
+    let total = 0;
+    snap.forEach(d => total += Number(d.data().capital || 0));
+    return total;
+  } catch(e) { return 0; }
+}
+
+/* ═══ GET REFERRAL EARNINGS ═══ */
+async function getReferralEarnings(downlineId) {
+  try {
+    const refDoc = await db.collection(`users/${currentUserId}/referrals`).doc(downlineId).get();
+    return refDoc.exists ? (refDoc.data().totalEarned || 0) : 0;
+  } catch(e) { return 0; }
+}
+
+/* ═══ ENRICH MEMBER ═══ */
+async function enrichMember(user, level) {
+  const invested = await getUserInvested(user.uid);
+  const earned = await getReferralEarnings(user.uid);
+  const isActive = invested >= MIN_ACTIVE;
+  
+  return {
+    level, uid: user.uid,
+    fullName: user.fullName || user.username || 'User',
+    email: user.email || 'N/A',
+    username: user.username || '',
+    invested, earned, isActive,
+    joinedAt: user.createdAt || null
+  };
+}
+
+/* ═══ AUTH ═══ */
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUserId = user.uid;
+  
+  const userDoc = await db.collection('users').doc(currentUserId).get();
+  if (!userDoc.exists) { window.location.href = 'login.html'; return; }
+  const ud = userDoc.data();
+  
+  document.getElementById('avatarBox').textContent = (ud.fullName || 'U').charAt(0).toUpperCase();
+  
+  // Use username as referral code
+  myReferralCode = ud.username || currentUserId.substring(0, 8);
+  myReferralLink = `${window.location.origin}/register.html?ref=${myReferralCode}`;
+  document.getElementById('refLinkDisplay').textContent = myReferralLink;
+  
+  await loadTeamData();
+});
+
+async function loadTeamData() {
+  try {
+    const allSnap = await db.collection('users').get();
+    allUsersMap.clear();
+    const allUsers = [];
+    allSnap.docs.forEach(d => {
+      const data = d.data();
+      allUsers.push({ uid: d.id, ...data });
+      allUsersMap.set(d.id, data);
+    });
+    
+    const { l1, l2, l3 } = buildTeam(allUsers);
+    
+    allDownlines = [];
+    for (const u of l1) allDownlines.push(await enrichMember(u, 1));
+    for (const u of l2) allDownlines.push(await enrichMember(u, 2));
+    for (const u of l3) allDownlines.push(await enrichMember(u, 3));
+    
+    const l1List = allDownlines.filter(d => d.level === 1);
+    const l2List = allDownlines.filter(d => d.level === 2);
+    const l3List = allDownlines.filter(d => d.level === 3);
+    
+    const totalInvested = allDownlines.reduce((s,d) => s + d.invested, 0);
+    const totalEarned = allDownlines.reduce((s,d) => s + d.earned, 0);
+    const activeCount = allDownlines.filter(d => d.isActive).length;
+    
+    document.getElementById('totalTeamSize').textContent = allDownlines.length;
+    document.getElementById('activeMembers').textContent = activeCount;
+    document.getElementById('teamRecharge').textContent = '₦' + fm(totalInvested);
+    document.getElementById('l1Count').textContent = l1List.length;
+    document.getElementById('l2Count').textContent = l2List.length;
+    document.getElementById('l3Count').textContent = l3List.length;
+    document.getElementById('tl1badge').textContent = l1List.length;
+    document.getElementById('tl2badge').textContent = l2List.length;
+    document.getElementById('tl3badge').textContent = l3List.length;
+    
+    console.log('✅ Team loaded: Total='+allDownlines.length, 'Active='+activeCount, 'Invested=₦'+fm(totalInvested), 'Earned=₦'+fm(totalEarned));
+    
+    renderTeam(1);
+  } catch(e) {
+    console.error('Team load error:', e);
+    document.getElementById('memberList').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div class="empty-state-title">Error</div><div class="empty-state-sub">Please refresh the page</div></div>';
+  }
+}
+
+/* ═══ RENDER TEAM ═══ */
+function switchTeamLevel(lvl) {
+  currentTeamLevel = lvl;
+  [1,2,3].forEach(l => {
+    document.getElementById(`tltab${l}`).className = 'team-filter-btn';
+    if (l === lvl) document.getElementById(`tltab${l}`).className = `team-filter-btn active-l${l}`;
+  });
+  filterTeam();
+}
+
+function filterTeam() {
+  const query = (document.getElementById('teamSearchInput')?.value || '').toLowerCase().trim();
+  const list = allDownlines.filter(d => d.level === currentTeamLevel);
+  const filtered = query ? list.filter(d => d.fullName.toLowerCase().includes(query) || d.email.toLowerCase().includes(query) || d.username.toLowerCase().includes(query)) : list;
+  
+  const container = document.getElementById('memberList');
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><div class="empty-state-title">${query?'No results':'No Level '+currentTeamLevel+' members yet'}</div><div class="empty-state-sub">${query?'Try a different name':'Share your link to grow your team!'}</div></div>`;
+    return;
+  }
+  
+  const colors = {1:'av-l1',2:'av-l2',3:'av-l3'}, rates = {1:'10%',2:'3%',3:'1%'};
+  container.innerHTML = '';
+  
+  filtered.forEach((d, i) => {
+    let joinedStr = '—';
+    if (d.joinedAt) {
+      try {
+        const dt = d.joinedAt.toDate ? d.joinedAt.toDate() : new Date(d.joinedAt);
+        joinedStr = dt.toLocaleDateString('en-NG', {day:'2-digit',month:'short',year:'2-digit'});
+      } catch {}
+    }
+    
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.style.animationDelay = `${i*0.04}s`;
+    card.innerHTML = `
+      <div class="member-avatar ${colors[d.level]}">${d.fullName.charAt(0).toUpperCase()}</div>
+      <div class="member-body">
+        <div class="member-name">${d.fullName}</div>
+        <div class="member-email">@${d.username || d.email}</div>
+        <div class="member-tags">
+          <span class="member-tag tag-plan"><i class="fas fa-chart-pie"></i> Level ${d.level}</span>
+          <span class="member-tag tag-date"><i class="far fa-calendar"></i> ${joinedStr}</span>
+          <span class="member-tag ${d.isActive?'tag-active':'tag-inactive'}">${d.isActive?'Active':'Inactive'}</span>
+        </div>
+      </div>
+      <div class="member-right">
+        <div class="member-invested">Invested <b>₦${fm(d.invested)}</b></div>
+        <div class="member-bonus">+₦${fm(d.earned)}</div>
+        <div class="member-rate">Earnings (${rates[d.level]})</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+/* ═══ SHARE ═══ */
+function copyLink() {
+  navigator.clipboard?.writeText(myReferralLink).then(() => {
+    Swal.fire({ icon:'success', title:'Copied!', toast:true, timer:2000, showConfirmButton:false, position:'top-end' });
+  }).catch(() => {
+    const el = document.createElement('textarea'); el.value = myReferralLink;
+    document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+    Swal.fire({ icon:'success', title:'Copied!', toast:true, timer:2000 });
+  });
+}
+function shareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent('💰 Join Kinectwealth and earn daily!\n\n'+myReferralLink)}`,'_blank'); }
+function shareTelegram() { window.open(`https://t.me/share/url?url=${encodeURIComponent(myReferralLink)}&text=${encodeURIComponent('Join Kinectwealth!')}`,'_blank'); }
+function shareMore() { if(navigator.share) navigator.share({title:'Join Kinectwealth',text:'Earn daily returns!',url:myReferralLink}); else copyLink(); }
+
+window.switchTeamLevel = switchTeamLevel;
+window.filterTeam = filterTeam;
+window.copyLink = copyLink;
+window.shareWhatsApp = shareWhatsApp;
+window.shareTelegram = shareTelegram;
+window.shareMore = shareMore;
+</script>
+</body>
+</html>
