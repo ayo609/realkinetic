@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kinectwealth • Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root { --primary: #2563eb; --primary-dark: #1d4ed8; --primary-light: #3b82f6; --success: #16a34a; --warning: #f59e0b; --danger: #ef4444; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-secondary: #64748b; --text-muted: #94a3b8; --border: #e2e8f0; --border-light: #f1f5f9; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: linear-gradient(160deg, #f0f4ff 0%, #e8f0fe 30%, #f5f7ff 60%, #eff6ff 100%); color: var(--text); min-height: 100vh; position: relative; overflow-x: hidden; padding-bottom: 100px; }
+    .bg-shape { position: fixed; border-radius: 50%; z-index: 0; opacity: 0.04; pointer-events: none; }
+    .bg-shape-1 { width: 500px; height: 500px; top: -100px; right: -80px; background: #2563eb; animation: drift 20s infinite alternate; }
+    .bg-shape-2 { width: 400px; height: 400px; bottom: -80px; left: -60px; background: #3b82f6; animation: drift 18s infinite alternate-reverse; }
+    @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(50px,30px) scale(1.1); } }
+    .app-wrapper { position: relative; z-index: 10; max-width: 1300px; margin: 0 auto; padding: 1.5rem 2rem 100px; }
+    .top-nav { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; box-shadow: 0 4px 16px rgba(37,99,235,0.05); }
+    .brand-area { display: flex; align-items: center; gap: 0.8rem; }
+    .brand-logo { width: 44px; height: 44px; background: linear-gradient(135deg, #1e40af, #2563eb); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #fff; box-shadow: 0 6px 16px rgba(37,99,235,0.3); }
+    .brand-name { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+    .brand-name span { background: linear-gradient(135deg, #1e40af, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-actions { display: flex; align-items: center; gap: 1rem; }
+    .user-avatar { width: 40px; height: 40px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary); }
+    .logout-btn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 0.5rem 1.2rem; color: #ef4444; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .logout-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+    .welcome-section { background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 40%, #2563eb 70%, #3b82f6 100%); border-radius: 24px; padding: 2.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; color: #fff; position: relative; overflow: hidden; }
+    .welcome-section::after { content: ''; position: absolute; top: -50px; right: -50px; width: 250px; height: 250px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+    .welcome-text { position: relative; z-index: 1; } .welcome-text .greeting { font-size: 0.85rem; opacity: 0.85; margin-bottom: 0.3rem; letter-spacing: 0.03em; }
+    .welcome-text h2 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 0.3rem; } .welcome-text .highlight { color: #93c5fd; } .welcome-text p { opacity: 0.8; font-size: 0.9rem; }
+    .balance-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 1.2rem 2rem; text-align: center; backdrop-filter: blur(8px); position: relative; z-index: 1; }
+    .balance-box .blabel { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; margin-bottom: 0.3rem; }
+    .balance-box .bamount { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 1.3rem; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(37,99,235,0.08); border-color: #bfdbfe; }
+    .stat-card .sicon { width: 40px; height: 40px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--primary); margin-bottom: 0.8rem; }
+    .stat-card .slabel { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .stat-card .svalue { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+    .stat-card .ssub { font-size: 0.72rem; color: var(--success); margin-top: 0.3rem; display: flex; align-items: center; gap: 0.2rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin: 1.8rem 0 1rem; }
+    .section-header h3 { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; } .section-header h3 i { color: var(--primary); }
+    .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.8rem; margin-bottom: 2rem; }
+    .action-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; text-align: center; text-decoration: none; color: var(--text); transition: all 0.3s; cursor: pointer; }
+    .action-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(37,99,235,0.08); border-color: #bfdbfe; }
+    .action-card .aicon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin: 0 auto 0.7rem; }
+    .aicon.deposit { background: #eff6ff; color: #2563eb; } .aicon.withdraw { background: #f0fdf4; color: #16a34a; } .aicon.invest { background: #fefce8; color: #ca8a04; } .aicon.referral { background: #faf5ff; color: #9333ea; } .aicon.rewards { background: #fff7ed; color: #ea580c; }
+    .action-card .alabel { font-size: 0.85rem; font-weight: 600; color: #0f172a; } .action-card .asub { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .tx-panel { background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.02); margin-bottom: 2rem; }
+    .tx-header { padding: 1.3rem 1.8rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .tx-header h3 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; } .tx-header h3 i { color: var(--primary); }
+    .tab-btns { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+    .tab-btn { padding: 0.45rem 0.9rem; border-radius: 25px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text-muted); transition: all 0.2s; }
+    .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .tab-pane { display: none; } .tab-pane.active { display: block; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    th { text-align: left; padding: 0.8rem 0.6rem; color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; background: #f8fafc; border-bottom: 2px solid var(--border-light); }
+    td { padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--border-light); }
+    tr:hover td { background: #f8fafc; }
+    .type-tag { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
+    .type-deposit { background: #f0fdf4; color: #16a34a; } .type-withdrawal { background: #fffbeb; color: #d97706; } .type-roi { background: #eff6ff; color: #2563eb; }
+    .type-referral { background: #faf5ff; color: #9333ea; } .type-bonus { background: #ecfdf5; color: #059669; } .type-invest { background: #fefce8; color: #ca8a04; }
+    .type-loan { background: #fef2f2; color: #dc2626; } .type-team { background: #fff7ed; color: #ea580c; }
+    .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 0.3rem; }
+    .status-completed { background: #16a34a; } .status-pending { background: #f59e0b; } .status-rejected { background: #ef4444; }
+    .level-chip { display: inline-block; background: #eff6ff; border-radius: 10px; padding: 0.1rem 0.4rem; font-size: 0.62rem; font-weight: 700; color: var(--primary); }
+    .no-data { text-align: center; padding: 3rem; color: var(--text-muted); } .no-data i { font-size: 2.5rem; margin-bottom: 0.8rem; color: #bfdbfe; }
+    .loading-text { text-align: center; padding: 2rem; color: var(--primary); }
+    .support-card { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .support-card h3 { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; } .support-card p { color: var(--text-secondary); font-size: 0.85rem; }
+    .support-links { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+    .support-link { padding: 0.6rem 1.3rem; border-radius: 30px; font-weight: 600; font-size: 0.83rem; text-decoration: none; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+    .support-link.tg { background: #eff6ff; color: #26A5E4; border: 1px solid #bfdbfe; } .support-link.tg:hover { background: #26A5E4; color: #fff; border-color: #26A5E4; }
+    .bottom-nav { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid var(--border); border-radius: 60px; padding: 0.5rem 0.7rem; display: flex; gap: 0.3rem; z-index: 200; box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+    .nav-link { padding: 0.55rem 1.1rem; border-radius: 40px; display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.82rem; transition: all 0.2s; }
+    .nav-link i { font-size: 1rem; } .nav-link.active, .nav-link:hover { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+    @media (max-width: 800px) { .app-wrapper { padding: 1rem 1.2rem 100px; } .top-nav { flex-direction: column; gap: 0.8rem; } .welcome-section { flex-direction: column; text-align: center; padding: 2rem 1.5rem; } .stats-row { grid-template-columns: 1fr 1fr; } .actions-grid { grid-template-columns: 1fr 1fr; } .nav-link span { display: none; } .nav-link { padding: 0.55rem 0.8rem; } }
+  </style>
+</head>
+<body>
+
+<div class="bg-shape bg-shape-1"></div>
+<div class="bg-shape bg-shape-2"></div>
+
+<div class="app-wrapper">
+  <nav class="top-nav"><div class="brand-area"><div class="brand-logo">⚡</div><div class="brand-name">Kinect<span>wealth</span></div></div><div class="nav-actions"><div class="user-avatar" id="userInitial">K</div><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button></div></nav>
+  <div class="welcome-section"><div class="welcome-text"><div class="greeting"><i class="fas fa-hand-peace"></i> WELCOME BACK</div><h2>Hello, <span class="highlight" id="displayName">Investor</span></h2><p>Track your portfolio and manage your investments</p></div><div class="balance-box"><div class="blabel"><i class="fas fa-wallet"></i> Available Balance</div><div class="bamount" id="walletBalance">₦0</div></div></div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="sicon"><i class="fas fa-chart-line"></i></div><div class="slabel">Total Invested</div><div class="svalue" id="totalInvested">₦0</div><div class="ssub"><i class="fas fa-arrow-up"></i> Lifetime</div></div>
+    <div class="stat-card"><div class="sicon"><i class="fas fa-coins"></i></div><div class="slabel">Total Earnings</div><div class="svalue" id="totalEarnings">₦0</div><div class="ssub"><i class="fas fa-arrow-up"></i> All time</div></div>
+    <div class="stat-card"><div class="sicon"><i class="fas fa-gift"></i></div><div class="slabel">Referral Bonus</div><div class="svalue" id="referralBonus">₦0</div><div class="ssub"><i class="fas fa-arrow-up"></i> Earned</div></div>
+    <div class="stat-card"><div class="sicon"><i class="fas fa-briefcase"></i></div><div class="slabel">Active Plans</div><div class="svalue" id="activePlans">0</div><div class="ssub"><i class="fas fa-clock"></i> Running</div></div>
+    <div class="stat-card"><div class="sicon"><i class="fas fa-users"></i></div><div class="slabel">Referrals</div><div class="svalue" id="totalReferrals">0</div><div class="ssub"><i class="fas fa-arrow-up"></i> Network</div></div>
+  </div>
+
+  <div class="section-header"><h3><i class="fas fa-bolt"></i> Quick Actions</h3></div>
+  <div class="actions-grid">
+    <a href="deposit.html" class="action-card"><div class="aicon deposit"><i class="fas fa-plus-circle"></i></div><div class="alabel">Deposit</div><div class="asub">Fund wallet</div></a>
+    <a href="withdraw.html" class="action-card"><div class="aicon withdraw"><i class="fas fa-arrow-down"></i></div><div class="alabel">Withdraw</div><div class="asub">Cash out</div></a>
+    <a href="plans.html" class="action-card"><div class="aicon invest"><i class="fas fa-rocket"></i></div><div class="alabel">Invest</div><div class="asub">Buy plan</div></a>
+    <a href="subordinate-rewards.html" class="action-card"><div class="aicon rewards"><i class="fas fa-trophy"></i></div><div class="alabel">Team Rewards</div><div class="asub">Daily/Weekly</div></a>
+    <a href="referral.html" class="action-card"><div class="aicon referral"><i class="fas fa-share-nodes"></i></div><div class="alabel">Refer & Earn</div><div class="asub">Commissions</div></a>
+  </div>
+
+  <div class="tx-panel">
+    <div class="tx-header">
+      <h3><i class="fas fa-clock-rotate-left"></i> Transaction History</h3>
+      <div class="tab-btns">
+        <button class="tab-btn active" data-tab="all">All</button>
+        <button class="tab-btn" data-tab="deposits">Deposits</button>
+        <button class="tab-btn" data-tab="withdrawals">Withdrawals</button>
+        <button class="tab-btn" data-tab="investments">Investments</button>
+        <button class="tab-btn" data-tab="roi">Daily ROI</button>
+        <button class="tab-btn" data-tab="referrals">Referrals</button>
+        <button class="tab-btn" data-tab="bonus">Bonuses</button>
+        <button class="tab-btn" data-tab="team">Team Rewards</button>
+      </div>
+    </div>
+    <div style="padding:0;">
+      <div class="tab-pane active" id="pane-all"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <div class="tab-pane" id="pane-deposits"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <div class="tab-pane" id="pane-withdrawals"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <div class="tab-pane" id="pane-investments"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <div class="tab-pane" id="pane-roi"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <div class="tab-pane" id="pane-referrals"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <div class="tab-pane" id="pane-bonus"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+      <div class="tab-pane" id="pane-team"><div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+    </div>
+  </div>
+
+  <div class="support-card">
+    <h3><i class="fas fa-headset"></i> Need Help?</h3><p>Contact our support team or join the community</p>
+    <div class="support-links">
+      <a href="https://t.me/VictorSterling89" target="_blank" class="support-link tg"><i class="fab fa-telegram-plane"></i> Support</a>
+      <a href="https://t.me/KINECTIC_WEALTH" target="_blank" class="support-link tg"><i class="fab fa-telegram-plane"></i> Channel</a>
+      <a href="https://t.me/+zRUEJ3uds9E3Mzg0" target="_blank" class="support-link tg"><i class="fab fa-telegram-plane"></i> Group</a>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <a href="home.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="deposit.html" class="nav-link"><i class="fas fa-plus-circle"></i><span>Deposit</span></a>
+  <a href="plans.html" class="nav-link"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+  <a href="referral.html" class="nav-link"><i class="fas fa-users"></i><span>Referral</span></a>
+  <a href="dashboard.html" class="nav-link active"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+  authDomain: "realkinetic-72248.firebaseapp.com",
+  projectId: "realkinetic-72248",
+  storageBucket: "realkinetic-72248.firebasestorage.app",
+  messagingSenderId: "307505218118",
+  appId: "1:307505218118:web:010dc757c598f4b87d0047"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const fm = (v) => "₦" + Number(v || 0).toLocaleString();
+let allTx = [];
+
+// 🔥 Format date AND time: "27 May 2025, 3:45 PM"
+function formatDateTime(timestamp) {
+  if (!timestamp) return '—';
+  try {
+    const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + 
+           ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  } catch(e) { return '—'; }
+}
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', function() {
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+  this.classList.add('active');
+  document.getElementById('pane-' + this.dataset.tab).classList.add('active');
+}));
+
+document.getElementById('logoutBtn').onclick = async () => {
+  const r = await Swal.fire({ title:'Logout', text:'Are you sure?', icon:'question', showCancelButton:true, confirmButtonText:'Yes', confirmButtonColor:'#2563eb' });
+  if (r.isConfirmed) { await signOut(auth); Swal.fire({ icon:'success', title:'Logged Out', timer:1500, showConfirmButton:false }); setTimeout(() => window.location.href='login.html', 1500); }
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists()) { window.location.href = 'login.html'; return; }
+    const data = snap.data();
+    const fn = (data.fullName || 'Investor').split(' ')[0];
+    document.getElementById('displayName').textContent = fn;
+    document.getElementById('userInitial').textContent = fn.charAt(0).toUpperCase();
+    document.getElementById('walletBalance').textContent = fm(data.wallet || 0);
+    document.getElementById('totalInvested').textContent = fm(data.totalDeposits || 0);
+    document.getElementById('totalEarnings').textContent = fm(data.totalEarnings || 0);
+
+    const refSnap = await getDocs(collection(db, `users/${user.uid}/referrals`));
+    let rb = 0; refSnap.forEach(d => rb += Number(d.data().totalEarned || 0));
+    document.getElementById('referralBonus').textContent = fm(rb);
+    document.getElementById('totalReferrals').textContent = refSnap.size;
+
+    const pSnap = await getDocs(collection(db, `users/${user.uid}/activePlans`));
+    let ac = 0; pSnap.forEach(d => { const x = d.data(); if (x.status === 'active' && x.daysLeft > 0) ac++; });
+    document.getElementById('activePlans').textContent = ac;
+
+    await loadTx(user.uid);
+  } catch(e) { console.error(e); }
+});
+
+async function loadTx(uid) {
+  allTx = [];
+  const seen = new Set();
+
+  // 1. Deposits
+  (await getDocs(collection(db, `users/${uid}/deposits`))).forEach(d => {
+    const x = d.data(); const key = 'dep_' + d.id;
+    if (!seen.has(key)) { seen.add(key); allTx.push({ id:d.id, date:x.createdAt, type:'Deposit', cls:'type-deposit', cat:'deposits', amount:x.amount||0, status:x.status||'pending', detail:x.method||'Bank Transfer' }); }
+  });
+
+  // 2. Withdrawals
+  (await getDocs(collection(db, `users/${uid}/withdrawals`))).forEach(d => {
+    const x = d.data(); const key = 'wth_' + d.id;
+    if (!seen.has(key)) { seen.add(key); allTx.push({ id:d.id, date:x.createdAt, type:'Withdrawal', cls:'type-withdrawal', cat:'withdrawals', amount:x.amount||0, status:x.status||'pending', detail:(x.bankName||'')+' • '+(x.accountNumber||'') }); }
+  });
+
+  // 3. Plan Purchases + ROI
+  (await getDocs(collection(db, `users/${uid}/activePlans`))).forEach(d => {
+    const x = d.data();
+    const pk = 'invest_' + d.id;
+    if (!seen.has(pk)) { seen.add(pk); allTx.push({ id:d.id, date:x.startDate||x.createdAt, type:'Plan Purchase', cls:'type-invest', cat:'investments', amount:x.capital||0, status:'completed', detail:x.planName+' • '+fm(x.dailyEarning)+'/day' }); }
+    if (x.totalEarned > 0) {
+      const rk = 'roi_' + d.id;
+      if (!seen.has(rk)) { seen.add(rk); const de = Math.round((x.totalEarned||0)/(x.dailyEarning||1)); allTx.push({ id:d.id+'_roi', date:x.lastPayoutDate||x.startDate, type:'Daily ROI', cls:'type-roi', cat:'roi', amount:x.totalEarned||0, status:'completed', detail:x.planName+' • '+fm(x.dailyEarning)+'/day × '+de+' days' }); }
+    }
+  });
+
+  // 4. Referrals
+  (await getDocs(collection(db, `users/${uid}/referrals`))).forEach(d => {
+    const x = d.data();
+    if (x.totalEarned > 0) { const key = 'ref_' + d.id; if (!seen.has(key)) { seen.add(key); allTx.push({ id:d.id, date:x.lastInvestmentDate||x.createdAt||new Date(), type:'Referral Bonus', cls:'type-referral', cat:'referrals', amount:x.totalEarned||0, status:'completed', level:x.level, detail:'Level '+x.level+' ('+(x.commission||'?')+'%) • @'+(x.referredUsername||'user') }); } }
+  });
+
+  // 5. Transactions subcollection
+  (await getDocs(collection(db, `users/${uid}/transactions`))).forEach(d => {
+    const x = d.data(); const key = 'tx_' + d.id;
+    if (seen.has(key)) return;
+    seen.add(key);
+    if (x.type === 'referral_bonus' || (x.type && x.type.includes('referral'))) {
+      allTx.push({ id:d.id, date:x.createdAt, type:'Referral Bonus', cls:'type-referral', cat:'referrals', amount:x.amount||0, status:x.status||'completed', level:x.level, detail:x.description||('Level '+(x.level||'?')+' Referral') });
+    } else if (x.type === 'welcome_bonus') {
+      allTx.push({ id:d.id, date:x.createdAt, type:'Welcome Bonus', cls:'type-bonus', cat:'bonus', amount:x.amount||0, status:'completed', detail:x.description||'Welcome Bonus' });
+    } else if (x.type === 'subordinate_daily') {
+      allTx.push({ id:d.id, date:x.createdAt, type:'Team Daily', cls:'type-team', cat:'team', amount:x.amount||0, status:'completed', detail:x.description||'Daily subordinate reward' });
+    } else if (x.type === 'subordinate_weekly') {
+      allTx.push({ id:d.id, date:x.createdAt, type:'Team Weekly', cls:'type-team', cat:'team', amount:x.amount||0, status:'completed', detail:x.description||'Weekly subordinate reward' });
+    } else if (x.type === 'checkin') {
+      allTx.push({ id:d.id, date:x.createdAt, type:'Daily Check-in', cls:'type-bonus', cat:'bonus', amount:x.amount||0, status:'completed', detail:x.description||'Daily Check-in' });
+    } else {
+      allTx.push({ id:d.id, date:x.createdAt, type:x.type||'Transaction', cls:'type-bonus', cat:'bonus', amount:x.amount||0, status:x.status||'completed', detail:x.description||'' });
+    }
+  });
+
+  allTx.sort((a,b) => (b.date?.toMillis?.()||0) - (a.date?.toMillis?.()||0));
+  console.log('📊 Total transactions:', allTx.length);
+
+  renderPane('all', allTx);
+  renderPane('deposits', allTx.filter(t=>t.cat==='deposits'));
+  renderPane('withdrawals', allTx.filter(t=>t.cat==='withdrawals'));
+  renderPane('investments', allTx.filter(t=>t.cat==='investments'));
+  renderPane('roi', allTx.filter(t=>t.cat==='roi'));
+  renderPane('referrals', allTx.filter(t=>t.cat==='referrals'));
+  renderPane('bonus', allTx.filter(t=>t.cat==='bonus'));
+  renderPane('team', allTx.filter(t=>t.cat==='team'));
+}
+
+function renderPane(name, list) {
+  const c = document.getElementById('pane-' + name);
+  if (!c) return;
+  if (!list.length) { c.innerHTML = '<div class="no-data"><i class="fas fa-inbox"></i><p>No transactions found</p></div>'; return; }
+  const icons = { 'type-deposit':'fa-arrow-down','type-withdrawal':'fa-arrow-up','type-roi':'fa-chart-line','type-referral':'fa-gift','type-bonus':'fa-star','type-invest':'fa-rocket','type-loan':'fa-hand-holding-usd','type-team':'fa-trophy' };
+  const rows = list.slice(0,50).map(t => {
+    // 🔥 SHOW DATE + TIME
+    const dt = formatDateTime(t.date);
+    const sc = ['completed','approved','paid','success'].includes(t.status?.toLowerCase())?'status-completed':t.status?.toLowerCase()==='rejected'?'status-rejected':'status-pending';
+    const lv = t.level ? `<span class="level-chip">L${t.level}</span>` : '';
+    return `<tr><td style="white-space:nowrap;font-size:0.8rem;">${dt}</td><td><span class="type-tag ${t.cls}"><i class="fas ${icons[t.cls]||'fa-circle'}"></i> ${t.type}</span></td><td><strong>${fm(t.amount)}</strong></td><td><span class="status-dot ${sc}"></span>${t.status||'Pending'}</td><td>${t.detail||'—'} ${lv}</td></tr>`;
+  }).join('');
+  c.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Date & Time</th><th>Type</th><th>Amount</th><th>Status</th><th>Details</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+</script>
+</body>
+</html>
