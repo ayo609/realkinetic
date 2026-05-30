@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover"/>
+<title>Kinectwealth • Subordinate Rewards</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+:root { --primary: #2563eb; --primary-dark: #1d4ed8; --primary-light: #eff6ff; --bg-main: #f8fafc; --card-bg: #ffffff; --card-bg-inner: #f1f5f9; --text-primary: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --success: #16a34a; --success-light: #f0fdf4; --warning: #d97706; --warning-light: #fffbeb; --danger: #dc2626; }
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-main); color: var(--text-primary); min-height: 100vh; padding-bottom: 100px; }
+.app-header { background: linear-gradient(135deg, #1e3a8a, #2563eb, #3b82f6); padding: 14px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 16px rgba(37,99,235,0.2); }
+.header-row { display: flex; align-items: center; justify-content: space-between; max-width: 550px; margin: 0 auto; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.back-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 15px; text-decoration: none; }
+.header-title { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: #fff; }
+.main-container { max-width: 550px; margin: 0 auto; padding: 16px 16px 100px; }
+.hero-banner { background: linear-gradient(135deg, #1e40af, #2563eb); border-radius: 20px; padding: 24px; margin-bottom: 20px; text-align: center; color: #fff; box-shadow: 0 8px 24px rgba(37,99,235,0.2); }
+.hero-icon { font-size: 44px; margin-bottom: 10px; } .hero-title { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 4px; } .hero-sub { font-size: 12px; opacity: 0.85; font-weight: 500; }
+.stats-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.stat-card { flex: 1; background: var(--card-bg); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+.stat-value { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; color: var(--primary); margin-bottom: 4px; } .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.countdown-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; text-align: center; }
+.countdown-banner .cd-label { font-size: 11px; color: #92400e; font-weight: 600; margin-bottom: 4px; }
+.countdown-banner .cd-time { font-family: 'Outfit', monospace; font-size: 1.3rem; font-weight: 800; color: #d97706; }
+.section-header { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+.tiers-container { background: var(--card-bg); border-radius: 16px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+
+/* TIER ROW — each tier is its own row with button on the right */
+.tier-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
+.tier-row:last-child { border-bottom: none; }
+.tier-check { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+.tier-check.achieved { color: #16a34a; } .tier-check.not-achieved { color: #cbd5e1; }
+.tier-info { flex: 1; min-width: 0; }
+.tier-level { font-weight: 600; font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
+.tier-requirement { font-size: 10px; color: var(--text-muted); }
+.tier-reward-col { text-align: center; flex-shrink: 0; min-width: 64px; }
+.tier-amount { font-weight: 700; font-size: 14px; }
+.tier-amount.daily { color: var(--success); }
+.tier-amount.weekly { color: var(--warning); }
+.tier-period { font-size: 9px; color: var(--text-muted); }
+
+/* INDIVIDUAL CLAIM BUTTONS */
+.tier-claim-btn {
+  padding: 7px 13px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  color: #fff;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.18s;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
+}
+.tier-claim-btn.daily-btn { background: var(--success); box-shadow: 0 2px 8px rgba(22,163,74,0.25); }
+.tier-claim-btn.daily-btn:hover { background: #15803d; transform: translateY(-1px); }
+.tier-claim-btn.weekly-btn { background: var(--warning); box-shadow: 0 2px 8px rgba(217,119,6,0.25); }
+.tier-claim-btn.weekly-btn:hover { background: #b45309; transform: translateY(-1px); }
+.tier-claim-btn.btn-claimed { background: #f1f5f9; color: #94a3b8; cursor: default; font-size: 10px; box-shadow: none; }
+.tier-claim-btn.btn-locked { background: transparent; color: #cbd5e1; cursor: default; font-size: 10px; border: 1px solid #e2e8f0; box-shadow: none; }
+.tier-claim-btn:disabled { cursor: not-allowed; }
+
+.downline-list { background: var(--card-bg); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+.downline-header { padding: 14px 16px; background: var(--card-bg-inner); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+.downline-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.downline-item:last-child { border-bottom: none; } .downline-info { flex: 1; } .downline-name { font-weight: 600; font-size: 13px; color: var(--text-primary); margin-bottom: 2px; } .downline-email { font-size: 11px; color: var(--text-muted); }
+.downline-stats { text-align: right; } .downline-invested { font-size: 13px; font-weight: 700; color: var(--success); }
+.downline-level { font-size: 10px; padding: 3px 8px; border-radius: 20px; margin-top: 4px; font-weight: 600; display: inline-block; } .level-1 { background: #eff6ff; color: #2563eb; }
+.empty-state { text-align: center; padding: 36px 20px; } .empty-icon { font-size: 44px; margin-bottom: 10px; opacity: 0.5; } .empty-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; } .empty-text { font-size: 12px; color: var(--text-muted); }
+.bottom-nav { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: #ffffff; border: 1px solid var(--border); border-radius: 60px; padding: 0.5rem 0.7rem; display: flex; gap: 0.3rem; z-index: 200; box-shadow: 0 8px 30px rgba(0,0,0,0.06); max-width: 500px; width: fit-content; }
+.nav-link { padding: 0.5rem 1rem; border-radius: 40px; display: flex; align-items: center; gap: 0.4rem; color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.8rem; transition: all 0.2s; }
+.nav-link i { font-size: 1rem; } .nav-link.active, .nav-link:hover { background: var(--primary); color: #ffffff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+.toast-top-left { position: fixed; top: 20px; left: 20px; z-index: 10000; background: #fff; border-radius: 14px; padding: 1rem 1.4rem; box-shadow: 0 12px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.8rem; animation: slideLeft 0.3s ease-out; border-left: 4px solid #16a34a; max-width: 380px; }
+@keyframes slideLeft { from { opacity:0; transform:translateX(-100%); } to { opacity:1; transform:translateX(0); } }
+.toast-top-left.error { border-left-color: #ef4444; }
+.toast-top-left .t-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+.toast-top-left .t-icon.success { background: #f0fdf4; color: #16a34a; } .toast-top-left .t-icon.error { background: #fef2f2; color: #ef4444; }
+.toast-top-left .t-text h4 { font-size: 0.85rem; font-weight: 700; color: #0f172a; } .toast-top-left .t-text p { font-size: 0.75rem; color: #64748b; }
+@media (max-width: 400px) { .nav-link span { display: none; } .nav-link { padding: 0.5rem 0.7rem; } .tier-row { flex-wrap: wrap; gap: 8px; } .tier-claim-btn { width: 100%; text-align: center; margin-top: 4px; } }
+</style>
+</head>
+<body>
+
+<div class="app-header"><div class="header-row"><div class="header-left"><a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i></a><div class="header-title">Team Rewards</div></div></div></div>
+
+<div class="main-container">
+  <div class="hero-banner"><div class="hero-icon">🏆</div><div class="hero-title">Subordinate Rewards</div><div class="hero-sub">Earn daily & weekly bonuses from active downlines (Cumulative ₦10,000+)<br><small style="color:#fbbf24;">⚠️ Unclaimed rewards are LOST after reset!</small></div></div>
+  
+  <div class="countdown-banner">
+    <div class="cd-label">⏰ Daily Reward Resets In</div>
+    <div class="cd-time" id="countdownTimer">--:--:--</div>
+    <div style="font-size:10px;color:#92400e;margin-top:4px;">Weekly resets every Sunday at 12AM</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-value" id="totalDownlines">—</div><div class="stat-label">Active Downlines</div></div>
+    <div class="stat-card"><div class="stat-value" id="teamInvestment">—</div><div class="stat-label">Team Investment</div></div>
+  </div>
+
+  <!-- DAILY TIERS — each tier has its own individual claim button -->
+  <div class="section-header"><i class="fas fa-sun" style="color:var(--success);"></i> Daily Reward Tiers<span style="font-size:10px;color:var(--text-muted);margin-left:8px;">Resets 12AM daily</span></div>
+  <div class="tiers-container" id="dailyTiers"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Loading...</div></div></div>
+
+  <!-- WEEKLY TIERS — each tier has its own individual claim button -->
+  <div class="section-header"><i class="fas fa-calendar-week" style="color:var(--warning);"></i> Weekly Reward Tiers<span style="font-size:10px;color:var(--text-muted);margin-left:8px;">Resets Sunday 12AM</span></div>
+  <div class="tiers-container" id="weeklyTiers"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Loading...</div></div></div>
+
+  <div class="section-header"><i class="fas fa-users" style="color:var(--primary);"></i> Your Active Downlines (₦10k+)<span style="font-size:12px;color:var(--text-muted);margin-left:auto;" id="downlineCount">(0)</span></div>
+  <div class="downline-list" id="downlineList"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Loading...</div><div class="empty-text">Scanning your downlines...</div></div></div>
+</div>
+
+<div class="bottom-nav">
+  <a href="home.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="deposit.html" class="nav-link"><i class="fas fa-plus-circle"></i><span>Deposit</span></a>
+  <a href="plans.html" class="nav-link"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+  <a href="referral.html" class="nav-link"><i class="fas fa-users"></i><span>Referral</span></a>
+  <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAFpjJMFo9goTVX6uVkUzwfhK8egZGa_as",
+  authDomain: "realkinetic-72248.firebaseapp.com",
+  projectId: "realkinetic-72248",
+  storageBucket: "realkinetic-72248.firebasestorage.app",
+  messagingSenderId: "307505218118",
+  appId: "1:307505218118:web:010dc757c598f4b87d0047"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth(), db = firebase.firestore(), FV = firebase.firestore.FieldValue;
+
+const MIN_INVESTMENT = 10000;
+
+// Each tier is fully independent — has its own claim state tracked by tierCount key
+const DAILY_TIERS  = [{ count:3,  reward:1500  }, { count:6,  reward:3000  }, { count:10, reward:5000  }, { count:15, reward:7500  }, { count:20, reward:10000 }];
+const WEEKLY_TIERS = [{ count:10, reward:6500  }, { count:20, reward:13000 }, { count:30, reward:20000 }];
+
+let currentUser = null, countdownInterval = null;
+const fm  = (n) => (Number(n)||0).toLocaleString('en-NG');
+const fcf = (n) => '₦' + fm(n);
+function setText(id, t) { const el = document.getElementById(id); if(el) el.textContent = t; }
+function getToday()     { return new Date().toISOString().split('T')[0]; }
+function getWeekStart() {
+  const n = new Date(), d = n.getDay(), diff = d === 0 ? 6 : d - 1;
+  const m = new Date(n); m.setDate(n.getDate() - diff); m.setHours(0,0,0,0);
+  return m.toISOString().split('T')[0];
+}
+
+function showTopToast(title, msg, type='success') {
+  const old = document.querySelector('.toast-top-left'); if(old) old.remove();
+  const t = document.createElement('div');
+  t.className = `toast-top-left ${type}`;
+  t.innerHTML = `<div class="t-icon ${type}"><i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}"></i></div><div class="t-text"><h4>${title}</h4><p>${msg}</p></div>`;
+  document.body.appendChild(t);
+  setTimeout(() => { if(t.parentNode) t.remove(); }, 4000);
+}
+
+function startCountdown() {
+  if(countdownInterval) clearInterval(countdownInterval);
+  const el = document.getElementById('countdownTimer');
+  function tick() {
+    const now = new Date(), midnight = new Date(now);
+    midnight.setDate(midnight.getDate()+1); midnight.setHours(0,0,0,0);
+    const diff = midnight - now;
+    if(diff <= 0) { el.textContent = '00:00:00'; return; }
+    el.textContent = `${String(Math.floor(diff/3600000)).padStart(2,'0')}:${String(Math.floor((diff%3600000)/60000)).padStart(2,'0')}:${String(Math.floor((diff%60000)/1000)).padStart(2,'0')}`;
+  }
+  tick(); countdownInterval = setInterval(tick, 1000);
+}
+
+async function getUserCumulativeInvestment(userId) {
+  try {
+    const snap = await db.collection(`users/${userId}/activePlans`).get();
+    let total = 0;
+    snap.forEach(d => { const data = d.data(); if(data.status==='active' && data.daysLeft>0) total += Number(data.capital||0); });
+    return total;
+  } catch(e) { return 0; }
+}
+
+async function countActiveDownlines(uid) {
+  try {
+    const allUsersSnap = await db.collection('users').get();
+    let downlines = [], totalInvestment = 0;
+    for (const docSnap of allUsersSnap.docs) {
+      const userData = docSnap.data(), userId = docSnap.id;
+      if(userId === uid) continue;
+      if(userData.referredBy === uid) {
+        const invested = await getUserCumulativeInvestment(userId);
+        if(invested >= MIN_INVESTMENT) {
+          downlines.push({ uid:userId, name:userData.fullName||userData.username||'User', email:userData.email||'—', username:userData.username||'', invested, level:1 });
+          totalInvestment += invested;
+        }
+      }
+    }
+    downlines.sort((a,b) => b.invested - a.invested);
+    return { count:downlines.length, downlines, totalInvestment };
+  } catch(e) { return { count:0, downlines:[], totalInvestment:0 }; }
+}
+
+/**
+ * RENDER TIERS — each tier row has its OWN independent claim button.
+ *
+ * Claim state is stored per-tier using keys like:
+ *   subordinateRewards.daily.tiers["3"].lastClaimDate   (for count=3 daily tier)
+ *   subordinateRewards.weekly.tiers["10"].lastClaimWeek  (for count=10 weekly tier)
+ *
+ * This means claiming Tier 1 does NOT block Tier 2 — fully independent.
+ */
+function renderTiers(containerId, tiers, activeCount, type, tierClaimMap) {
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const isDaily = type === 'daily';
+  const today = getToday();
+  const ws    = getWeekStart();
+
+  container.innerHTML = tiers.map(t => {
+    const achieved  = activeCount >= t.count;
+    const tierKey   = String(t.count);
+    const tierState = tierClaimMap[tierKey] || {};
+    const alreadyClaimed = isDaily
+      ? (tierState.lastClaimDate  === today)
+      : (tierState.lastClaimWeek  === ws);
+
+    let btnHtml = '';
+    if (!achieved) {
+      // Not reached — show how many more needed
+      const needed = t.count - activeCount;
+      btnHtml = `<button class="tier-claim-btn btn-locked" disabled>🔒 ${needed} more</button>`;
+    } else if (alreadyClaimed) {
+      // Reached but already claimed for this period
+      btnHtml = `<button class="tier-claim-btn btn-claimed" disabled>✅ Claimed</button>`;
+    } else {
+      // Reached and NOT yet claimed — show active claim button
+      const color = isDaily ? 'daily-btn' : 'weekly-btn';
+      btnHtml = `<button class="tier-claim-btn ${color}" onclick="claimTierReward('${type}', ${t.count}, ${t.reward})">💰 Claim</button>`;
+    }
+
+    return `<div class="tier-row">
+      <div class="tier-check ${achieved ? 'achieved' : 'not-achieved'}">
+        <i class="fas ${achieved ? 'fa-check-circle' : 'fa-circle'}"></i>
+      </div>
+      <div class="tier-info">
+        <div class="tier-level">${t.count}+ Active Downlines</div>
+        <div class="tier-requirement">Min cumulative ₦${fm(MIN_INVESTMENT)} each</div>
+      </div>
+      <div class="tier-reward-col">
+        <div class="tier-amount ${type}">${fcf(t.reward)}</div>
+        <div class="tier-period">per ${isDaily ? 'day' : 'week'}</div>
+      </div>
+      ${btnHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderDownlines(dl) {
+  const c = document.getElementById('downlineList');
+  setText('downlineCount', `(${dl.length})`);
+  if(!dl.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No Active Downlines Yet</div><div class="empty-text">Share your referral link. Downlines need cumulative ₦${fm(MIN_INVESTMENT)} in active plans.</div></div>`;
+    return;
+  }
+  c.innerHTML = `<div class="downline-header"><span>Member</span><span>Invested</span></div>${dl.map(d => `<div class="downline-item"><div class="downline-info"><div class="downline-name">${d.name}</div><div class="downline-email">@${d.username||d.email}</div></div><div class="downline-stats"><div class="downline-invested">${fcf(d.invested)}</div><div class="downline-level level-${d.level}">Level ${d.level}</div></div></div>`).join('')}`;
+}
+
+async function loadAllData() {
+  if(!currentUser) return;
+  try {
+    const { count, downlines, totalInvestment } = await countActiveDownlines(currentUser.uid);
+    setText('totalDownlines', count);
+    setText('teamInvestment', fcf(totalInvestment));
+
+    const ud   = await db.collection('users').doc(currentUser.uid).get();
+    const sub  = ud.data()?.subordinateRewards || {};
+
+    // Per-tier claim maps — keyed by tier count as string
+    const dailyTierMap  = sub.daily?.tiers  || {};
+    const weeklyTierMap = sub.weekly?.tiers  || {};
+
+    renderTiers('dailyTiers',  DAILY_TIERS,  count, 'daily',  dailyTierMap);
+    renderTiers('weeklyTiers', WEEKLY_TIERS, count, 'weekly', weeklyTierMap);
+    renderDownlines(downlines);
+  } catch(e) { console.error('Load error:', e); }
+}
+
+/**
+ * CLAIM — handles each tier independently.
+ * Saves claim state under: subordinateRewards.daily.tiers.{count}.lastClaimDate
+ *                          subordinateRewards.weekly.tiers.{count}.lastClaimWeek
+ */
+window.claimTierReward = async function(type, tierCount, reward) {
+  if(!currentUser) return;
+
+  // Re-verify downline count live before processing
+  const { count } = await countActiveDownlines(currentUser.uid);
+  if(count < tierCount) {
+    return showTopToast('Not Eligible', `You need ${tierCount}+ active downlines. You currently have ${count}.`, 'error');
+  }
+
+  const ud       = await db.collection('users').doc(currentUser.uid).get();
+  const sub      = ud.data()?.subordinateRewards || {};
+  const isDaily  = type === 'daily';
+  const today    = getToday();
+  const ws       = getWeekStart();
+  const tierKey  = String(tierCount);
+
+  // Check if this specific tier was already claimed for the current period
+  const tierState      = isDaily ? (sub.daily?.tiers?.[tierKey]  || {}) : (sub.weekly?.tiers?.[tierKey] || {});
+  const alreadyClaimed = isDaily ? (tierState.lastClaimDate === today) : (tierState.lastClaimWeek === ws);
+
+  if(alreadyClaimed) {
+    return showTopToast('Already Claimed', `This tier was already claimed ${isDaily ? 'today' : 'this week'}!`, 'error');
+  }
+
+  // Confirm dialog
+  const cf = await Swal.fire({
+    title: `Claim ${isDaily ? 'Daily' : 'Weekly'} Tier Reward?`,
+    html: `<div style="font-size:30px;font-weight:800;color:${isDaily ? '#16a34a' : '#d97706'};margin:8px 0;">${fcf(reward)}</div>
+           <p style="font-size:13px;color:#374151;">Tier: ${tierCount}+ active downlines</p>
+           <p style="font-size:12px;color:#64748b;margin-top:4px;">You have <strong>${count}</strong> active downlines ✅</p>
+           <p style="font-size:11px;color:#64748b;margin-top:6px;">Credited to wallet instantly</p>`,
+    showCancelButton: true,
+    confirmButtonText: '💰 Claim Now',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: isDaily ? '#16a34a' : '#d97706'
+  });
+  if(!cf.isConfirmed) return;
+
+  Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+  try {
+    const batch    = db.batch();
+    const userRef  = db.collection('users').doc(currentUser.uid);
+
+    // Build the specific tier claim update (dot notation for nested map)
+    const claimField = isDaily
+      ? `subordinateRewards.daily.tiers.${tierKey}`
+      : `subordinateRewards.weekly.tiers.${tierKey}`;
+
+    const claimValue = isDaily
+      ? { lastClaimDate: today,  lastClaimAmount: reward, downlineCountAtClaim: count }
+      : { lastClaimWeek: ws,     lastClaimAmount: reward, downlineCountAtClaim: count };
+
+    // Wallet update + tier claim state
+    const updates = {
+      wallet:        FV.increment(reward),
+      totalEarnings: FV.increment(reward),
+    };
+    updates[claimField] = claimValue;
+
+    batch.update(userRef, updates);
+
+    // Transaction record
+    batch.set(db.collection(`users/${currentUser.uid}/transactions`).doc(), {
+      type:          isDaily ? 'subordinate_daily' : 'subordinate_weekly',
+      amount:        reward,
+      status:        'completed',
+      description:   `${isDaily ? 'Daily' : 'Weekly'} subordinate reward — Tier ${tierCount}+ (${count} active downlines)`,
+      downlineCount: count,
+      tierCount,
+      createdAt:     FV.serverTimestamp()
+    });
+
+    await batch.commit();
+
+    Swal.close();
+    showTopToast('Reward Claimed! 🎉', `+${fcf(reward)} added to your wallet!`, 'success');
+
+    // Reload to refresh all button states
+    await loadAllData();
+  } catch(e) {
+    Swal.fire({ icon: 'error', title: 'Claim Failed', text: e.message, confirmButtonColor: '#dc2626' });
+  }
+};
+
+auth.onAuthStateChanged((user) => {
+  if(!user) { window.location.replace('login.html'); return; }
+  currentUser = user;
+  loadAllData();
+  startCountdown();
+});
+</script>
+</body>
+</html>
